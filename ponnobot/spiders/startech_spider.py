@@ -1,6 +1,5 @@
-import logging
 import re
-import unicodedata
+
 import scrapy
 
 
@@ -67,27 +66,27 @@ class StarTechBDSpider(scrapy.Spider):
         #     yield response.follow(next_page, callback=self.parse)
 
     def parse_product(self, response):
-            """
-            :param response:
-            :return: product details dictionary
-            """
+        """
+        :param response:
+        :return: product details dictionary
+        """
 
-            def extract_with_css(query):
-                return response.css(query).get(default='').strip()
+        def extract_with_css(query):
+            return response.css(query).get(default='').strip()
 
-            product_details = dict()
-            product_details['name'] = extract_with_css('h1.product-name ::text')
-            # todo nested category
-            # product_details['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
-            product_details['category'] = response.css('span[itemprop="name"] ::text').get()
-            product_details['product_url'] = response.url
-            product_attrs = response.css('td.product-info-label ::text').getall()
-            product_attr_values = response.css('td.product-info-data ::text').getall()
-            for key, value in zip(product_attrs, product_attr_values):
-                product_details[key] = value
-            product_details['features'] = [feature_value.strip() for feature_value in
-                                           response.css('div.short-description ul > li ::text').getall()]
+        product_details = dict()
+        product_details['name'] = extract_with_css('h1.product-name ::text')
+        # todo nested category
+        # product_details['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
+        product_details['category'] = response.css('span[itemprop="name"] ::text').get()
+        product_details['product_url'] = response.url
+        product_attrs = response.css('td.product-info-label ::text').getall()
+        product_attr_values = response.css('td.product-info-data ::text').getall()
+        for key, value in zip(product_attrs, product_attr_values):
+            if key == "Price":
+                product_details['price'] = value
+        product_details['features'] = [feature_value.strip() for feature_value in
+                                       response.css('div.short-description ul > li ::text').getall()]
 
-            product_details['img'] = response.css('img.main-img ::attr("src")').get()
-
-            yield product_details
+        product_details['img'] = response.css('img.main-img ::attr("src")').get()
+        yield product_details
