@@ -44,17 +44,4 @@ class RyanComputersSpider(scrapy.Spider):
         product_details['name'] = response.css('h1.title ::text').get()
         product_details['old_price'] = unicodedata.normalize("NFKD",response.css('span.old-price ::text').get().strip())
         product_details['special_price'] = unicodedata.normalize("NFKD", response.css('div.special-price span.price ::text').get().strip())
-
-        # following sibling  : https://stackoverflow.com/questions/33904058/using-normalize-space-with-scrapy
-
-        # normalize-space after following-sibling : https://www.reddit.com/r/scrapy/comments/epvkhy/xpath_use_of_sibling/
-
-        # https://stackoverflow.com/questions/5992177/what-is-the-difference-between-normalize-space-and-normalize-spacetext
-
-        # https://stackoverflow.com/questions/21118582/normalize-space-just-works-with-xpath-not-css-selector/46962320
-
-        features = response.xpath('//p[contains(@class, "quick-overview-style")]/following-sibling::text()[normalize-space(.)]').getall()
-        product_details['features'] = [specification_label.strip() for specification_label in features]
-        # for info in response.css('div#information '):
-        #     print(info.css('div.specs-item-wrapper ::text').getall())
         yield product_details

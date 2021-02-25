@@ -85,8 +85,5 @@ class StarTechBDSpider(scrapy.Spider):
         for key, value in zip(product_attrs, product_attr_values):
             if key == "Price":
                 product_details['price'] = value
-        product_details['features'] = [feature_value.strip() for feature_value in
-                                       response.css('div.short-description ul > li ::text').getall()]
-
         product_details['img'] = response.css('img.main-img ::attr("src")').get()
         yield product_details
