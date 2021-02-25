@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# custom application
+CUSTOM_APPS = ['products', 'ponnobot', 'api', ]
+
+PACKAGES = ['rest_framework', 'rest_framework.authtoken', ]
 
 # Application definition
 
@@ -37,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
+] + CUSTOM_APPS + PACKAGES
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
