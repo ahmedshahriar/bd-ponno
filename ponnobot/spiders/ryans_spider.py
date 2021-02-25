@@ -43,6 +43,7 @@ class RyanComputersSpider(scrapy.Spider):
         product_details = dict()
         product_details['name'] = response.css('h1.title ::text').get()
         product_details['product_url'] = response.url
+        product_details['category'] = response.css('ul.breadcrumb-menu li a ::text').get()
         product_details['old_price'] = unicodedata.normalize("NFKD",response.css('span.old-price ::text').get().strip())
         product_details['special_price'] = unicodedata.normalize("NFKD", response.css('div.special-price span.price ::text').get().strip())
         product_details['image'] = response.css('meta[property="og:image"] ::attr("content")').get().strip().replace('thumbnail','main')
