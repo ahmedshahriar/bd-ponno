@@ -75,6 +75,7 @@ class StarTechBDSpider(scrapy.Spider):
             return response.css(query).get(default='').strip()
 
         product_details = dict()
+        product_details['vendor'] = self.name
         product_details['name'] = extract_with_css('h1.product-name ::text')
         # todo nested category
         # product_details['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
@@ -85,5 +86,5 @@ class StarTechBDSpider(scrapy.Spider):
         for key, value in zip(product_attrs, product_attr_values):
             if key == "Price":
                 product_details['price'] = value
-        product_details['img'] = response.css('img.main-img ::attr("src")').get()
+        product_details['image'] = response.css('img.main-img ::attr("src")').get()
         yield product_details

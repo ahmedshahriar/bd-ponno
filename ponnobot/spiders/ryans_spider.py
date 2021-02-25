@@ -23,17 +23,17 @@ class RyanComputersSpider(scrapy.Spider):
         yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
-        try:
-            pagination_links = response.css('div.pages ol li a[rel="next"] ::attr("href")').get()
-            yield response.follow(pagination_links, self.parse)
-        except IndexError as ie:
-            # logging.info(ie, logging.WARN)
-            print(ie)
-        except TypeError as te:
-            # logging.info(te, logging.WARN)
-            print(te)
-        except ValueError as ve:
-            print(ve)
+        # try:
+        #     # pagination_links = response.css('div.pages ol li a[rel="next"] ::attr("href")').get()
+        #     # yield response.follow(pagination_links, self.parse)
+        # except IndexError as ie:
+        #     # logging.info(ie, logging.WARN)
+        #     print(ie)
+        # except TypeError as te:
+        #     # logging.info(te, logging.WARN)
+        #     print(te)
+        # except ValueError as ve:
+        #     print(ve)
 
     def parse_product(self, response):
         """
@@ -42,6 +42,9 @@ class RyanComputersSpider(scrapy.Spider):
         """
         product_details = dict()
         product_details['name'] = response.css('h1.title ::text').get()
+        product_details['product_url'] = response.url
         product_details['old_price'] = unicodedata.normalize("NFKD",response.css('span.old-price ::text').get().strip())
         product_details['special_price'] = unicodedata.normalize("NFKD", response.css('div.special-price span.price ::text').get().strip())
+        product_details['image'] = response.css('meta[property="og:image"] ::attr("content")').get().strip().replace('thumbnail','main')
+        product_details['available'] = False if response.css('div.out-of-stock-wrapper') else True
         yield product_details
