@@ -4,9 +4,11 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+from scrapy_djangoitem import DjangoItem
+
+from products.models import Product
 
 
-class PonnobotItem(scrapy.Item):
+class ProductItem(DjangoItem):
     # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    django_model = Product
