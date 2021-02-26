@@ -79,7 +79,8 @@ class StarTechBDSpider(scrapy.Spider):
         product_details['name'] = extract_with_css('h1.product-name ::text')
         # todo nested category
         # product_details['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
-        product_details['category'] = response.css('span[itemprop="name"] ::text').get()
+        # product_details['category'] = response.css('span[itemprop="name"] ::text').get()
+
         product_details['product_url'] = response.url
         product_details['available'] = False if 'Out' in response.css('td.product-status ::text').get() else True
         product_attrs = response.css('td.product-info-label ::text').getall()
