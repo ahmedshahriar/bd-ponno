@@ -47,17 +47,17 @@ class StarTechBDSpider(scrapy.Spider):
         # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
-        # try:
-        #     pagination_links = response.css('ul.pagination li a ::attr("href")').getall()[-1]
-        #     yield response.follow(pagination_links, self.parse)
-        # except IndexError as ie:
-        #     # logging.info(ie, logging.WARN)
-        #     print(ie)
-        # except TypeError as te:
-        #     # logging.info(te, logging.WARN)
-        #     print(te)
-        # except ValueError as ve:
-        #     print(ve)
+        try:
+            pagination_links = response.css('ul.pagination li a ::attr("href")').getall()[-1]
+            yield response.follow(pagination_links, self.parse)
+        except IndexError as ie:
+            # logging.info(ie, logging.WARN)
+            print(ie)
+        except TypeError as te:
+            # logging.info(te, logging.WARN)
+            print(te)
+        except ValueError as ve:
+            print(ve)
 
         # different approach for pagination
 
