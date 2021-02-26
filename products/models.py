@@ -8,7 +8,7 @@ class Product(models.Model):
     product_url = models.CharField(max_length=255, blank=False, null=False)
     price = models.CharField(max_length=255, blank=True, null=True)
     image_url = models.CharField(max_length=255, blank=True, null=True)
-    available = models.CharField(max_length=255, blank=True, null=True)
+    available = models.BooleanField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

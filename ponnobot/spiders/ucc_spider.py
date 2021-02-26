@@ -16,7 +16,7 @@ class UCCSpider(scrapy.Spider):
         urls = response.css('div.block-vmagicmenu-content ul.nav-desktop li.level1.category-item > a:first-child '
                             '::attr("href")').getall()
         # print(len(urls),urls)
-        for url in urls[:1]:
+        for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
