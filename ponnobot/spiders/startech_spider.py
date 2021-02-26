@@ -43,21 +43,21 @@ class StarTechBDSpider(scrapy.Spider):
         """ parse test for a single product """
         # single_product_url = 'https://www.startech.com.bd/logic-x1-14-inch-laptop-cooler'
         # single_product_url = 'https://www.startech.com.bd/chuwi-hi10-air-touch-tablet-and-notebook'
-        # yield response.follow(single_product_url,
-        #                       callback=self.parse_product)
+        # single_product_url ='https://www.startech.com.bd/huawei-matebook-d15-laptop'  # out of stock
+        # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
-        try:
-            pagination_links = response.css('ul.pagination li a ::attr("href")').getall()[-1]
-            yield response.follow(pagination_links, self.parse)
-        except IndexError as ie:
-            # logging.info(ie, logging.WARN)
-            print(ie)
-        except TypeError as te:
-            # logging.info(te, logging.WARN)
-            print(te)
-        except ValueError as ve:
-            print(ve)
+        # try:
+        #     pagination_links = response.css('ul.pagination li a ::attr("href")').getall()[-1]
+        #     yield response.follow(pagination_links, self.parse)
+        # except IndexError as ie:
+        #     # logging.info(ie, logging.WARN)
+        #     print(ie)
+        # except TypeError as te:
+        #     # logging.info(te, logging.WARN)
+        #     print(te)
+        # except ValueError as ve:
+        #     print(ve)
 
         # different approach for pagination
 
@@ -81,10 +81,12 @@ class StarTechBDSpider(scrapy.Spider):
         # product_details['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
         product_details['category'] = response.css('span[itemprop="name"] ::text').get()
         product_details['product_url'] = response.url
+        product_details['available'] = False if 'Out' in response.css('td.product-status ::text').get() else True
         product_attrs = response.css('td.product-info-label ::text').getall()
         product_attr_values = response.css('td.product-info-data ::text').getall()
+
         for key, value in zip(product_attrs, product_attr_values):
             if key == "Price":
                 product_details['price'] = value
-        product_details['image'] = response.css('img.main-img ::attr("src")').get()
+        product_details['image_url'] = response.css('img.main-img ::attr("src")').get()
         yield product_details

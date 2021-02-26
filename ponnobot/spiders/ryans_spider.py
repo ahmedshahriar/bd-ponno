@@ -1,5 +1,5 @@
-import logging
 import unicodedata
+
 import scrapy
 
 
@@ -41,11 +41,16 @@ class RyanComputersSpider(scrapy.Spider):
         :return: product details dictionary
         """
         product_details = dict()
+        product_details['vendor'] = self.name
         product_details['name'] = response.css('h1.title ::text').get()
         product_details['product_url'] = response.url
         product_details['category'] = response.css('ul.breadcrumb-menu li a ::text').get()
-        product_details['old_price'] = unicodedata.normalize("NFKD",response.css('span.old-price ::text').get().strip())
-        product_details['special_price'] = unicodedata.normalize("NFKD", response.css('div.special-price span.price ::text').get().strip())
-        product_details['image'] = response.css('meta[property="og:image"] ::attr("content")').get().strip().replace('thumbnail','main')
+        # product_details['old_price'] = unicodedata.normalize("NFKD",
+        #                                                      response.css('span.old-price ::text').get().strip())
+        product_details['special_price'] = unicodedata.normalize("NFKD", response.css(
+            'div.special-price span.price ::text').get().strip())
+        product_details['price'] = product_details['special_price']
+        product_details['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get().strip().replace(
+            'thumbnail', 'main')
         product_details['available'] = False if response.css('div.out-of-stock-wrapper') else True
         yield product_details
