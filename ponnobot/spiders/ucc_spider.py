@@ -26,14 +26,14 @@ class UCCSpider(scrapy.Spider):
         """
 
         """ parse products """
-        # product_page_links = response.css('div.product-hover  a')
-        # yield from response.follow_all(product_page_links, self.parse_product)
+        product_page_links = response.css('div.product-hover  a')
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         """ parse test for a single product """
         # single_product_url = 'https://ucc-bd.com/msi-meg-z490-unify-motherboard.html'
-        single_product_url = 'https://ucc-bd.com/msi-b560m-pro-motherboard.html'
-        yield response.follow(single_product_url,
-                              callback=self.parse_product)
+        # single_product_url = 'https://ucc-bd.com/msi-b560m-pro-motherboard.html'
+        # yield response.follow(single_product_url,
+        #                       callback=self.parse_product)
 
         """ pagination """
         # try:
