@@ -8,7 +8,19 @@ from ponnobot.items import ProductItem
 class RyanComputersSpider(scrapy.Spider):
     name = "ryans"
     allowed_domains = ['ryanscomputers.com']
-    start_urls = ['https://www.ryanscomputers.com/category/notebook-all-notebook']
+    # start_urls = ['https://www.ryanscomputers.com/category/notebook-all-notebook']
+
+    def start_requests(self):
+        url = 'https://www.ryanscomputers.com/'
+        yield scrapy.Request(url=url, callback=self.begin_parse)
+
+    def begin_parse(self, response):
+        # https://www.w3schools.com/cssref/css_selectors.asp
+        # todo last section to be added manually
+        urls = response.css('ul.nav a.nav-link ::attr("href")').getall()
+        print(len(urls),urls)
+        # for url in urls:
+        #     yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
         """
@@ -59,4 +71,4 @@ class RyanComputersSpider(scrapy.Spider):
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
             .get().strip().replace('thumbnail', 'main')
         item['available'] = False if response.css('div.out-of-stock-wrapper') else True
-        yield item
+        item.save()

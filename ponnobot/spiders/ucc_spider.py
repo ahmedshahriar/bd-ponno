@@ -63,4 +63,4 @@ class UCCSpider(scrapy.Spider):
         item['price'] = round(
             float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
         item['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
-        yield item
+        item.save()
