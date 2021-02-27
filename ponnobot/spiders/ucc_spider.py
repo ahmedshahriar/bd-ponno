@@ -1,5 +1,7 @@
 import scrapy
 
+from ponnobot.items import ProductItem
+
 
 class UCCSpider(scrapy.Spider):
     name = "ucc"
@@ -49,16 +51,16 @@ class UCCSpider(scrapy.Spider):
         #     print(ve)
 
     def parse_product(self, response):
-        product_details = dict()
-        product_details['vendor'] = self.name
-        product_details['name'] = response.css('span[itemprop="name"] ::text').get()
-        product_details['product_url'] = response.url
+        item = ProductItem()
+        item['vendor'] = self.name
+        item['name'] = response.css('span[itemprop="name"] ::text').get()
+        item['product_url'] = response.url
 
         # product_details['category'] = response.css('ul.items li.item.category a ::text').get()
 
-        product_details['available'] = True if 'In' in response.css(
+        item['available'] = True if 'In' in response.css(
             'div[title="Availability"] span ::text').get().strip() else False
-        product_details['price'] = round(
+        item['price'] = round(
             float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
-        product_details['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
-        yield product_details
+        item['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
+        yield item

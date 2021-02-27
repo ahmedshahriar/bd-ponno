@@ -2,6 +2,8 @@ import re
 
 import scrapy
 
+from ponnobot.items import ProductItem
+
 
 class StarTechBDSpider(scrapy.Spider):
     name = "startech"
@@ -74,16 +76,16 @@ class StarTechBDSpider(scrapy.Spider):
         def extract_with_css(query):
             return response.css(query).get(default='').strip()
 
-        product_details = dict()
-        product_details['vendor'] = self.name
-        product_details['name'] = extract_with_css('h1.product-name ::text')
+        item = ProductItem()
+        item['vendor'] = self.name
+        item['name'] = extract_with_css('h1.product-name ::text')
         # todo nested category
         # product_details['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
         # product_details['category'] = response.css('span[itemprop="name"] ::text').get()
 
-        product_details['product_url'] = response.url
-        product_details['available'] = False if 'Out' in response.css('td.product-status ::text').get() else True
-        product_details['price'] = round(float(response.css('meta[property="product:price:amount"] ::attr("content")')
+        item['product_url'] = response.url
+        item['available'] = False if 'Out' in response.css('td.product-status ::text').get() else True
+        item['price'] = round(float(response.css('meta[property="product:price:amount"] ::attr("content")')
                                                .get()))
-        product_details['image_url'] = response.css('img.main-img ::attr("src")').get()
-        yield product_details
+        item['image_url'] = response.css('img.main-img ::attr("src")').get()
+        yield item

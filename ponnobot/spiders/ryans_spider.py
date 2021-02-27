@@ -2,6 +2,8 @@ import unicodedata
 
 import scrapy
 
+from ponnobot.items import ProductItem
+
 
 class RyanComputersSpider(scrapy.Spider):
     name = "ryans"
@@ -42,10 +44,10 @@ class RyanComputersSpider(scrapy.Spider):
         :param response:
         :return: product details dictionary
         """
-        product_details = dict()
-        product_details['vendor'] = self.name
-        product_details['name'] = response.css('h1.title ::text').get()
-        product_details['product_url'] = response.url
+        item = ProductItem()
+        item['vendor'] = self.name
+        item['name'] = response.css('h1.title ::text').get()
+        item['product_url'] = response.url
 
         # product_details['category'] = response.css('ul.breadcrumb-menu li a ::text').get()
 
@@ -53,8 +55,8 @@ class RyanComputersSpider(scrapy.Spider):
         #                                                      response.css('span.old-price ::text').get().strip())
         special_price = unicodedata.normalize("NFKD", response.css(
             'div.special-price span.price ::text').get().strip().replace(',', ''))
-        product_details['price'] = round(float(special_price))
-        product_details['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
+        item['price'] = round(float(special_price))
+        item['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
             .get().strip().replace('thumbnail', 'main')
-        product_details['available'] = False if response.css('div.out-of-stock-wrapper') else True
-        yield product_details
+        item['available'] = False if response.css('div.out-of-stock-wrapper') else True
+        # yield item
