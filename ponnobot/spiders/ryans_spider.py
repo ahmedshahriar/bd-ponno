@@ -18,9 +18,9 @@ class RyanComputersSpider(scrapy.Spider):
         # https://www.w3schools.com/cssref/css_selectors.asp
         # todo last section to be added manually
         urls = response.css('ul.nav a.nav-link ::attr("href")').getall()
-        print(len(urls),urls)
-        # for url in urls:
-        #     yield scrapy.Request(url=url, callback=self.parse)
+        # print(len(urls),urls)
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
         """
