@@ -59,4 +59,4 @@ class RyanComputersSpider(scrapy.Spider):
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
             .get().strip().replace('thumbnail', 'main')
         item['available'] = False if response.css('div.out-of-stock-wrapper') else True
-        # yield item
+        yield item

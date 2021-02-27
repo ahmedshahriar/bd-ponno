@@ -37,10 +37,10 @@ export_to_csv.short_description = 'Export to CSV'
 
 
 @admin.register(Product)
-class MedicineAdmin(admin.ModelAdmin):
+class ProductAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display
     list_display = ('vendor', 'name', 'show_product_url', 'price', 'image_url', 'available')
-    list_filter = ('vendor', 'available', 'type', 'created')
+    list_filter = ('vendor', 'available', 'created')
     search_fields = ('name',)
     date_hierarchy = 'created'
     ordering = ('created',)
