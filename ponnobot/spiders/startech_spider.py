@@ -15,7 +15,7 @@ class StarTechBDSpider(scrapy.Spider):
         # https://www.w3schools.com/cssref/css_selectors.asp
         urls = response.css('ul.responsive-menu  li.has-child.c-1 > a:first-child ::attr("href")').getall()
         # print(len(urls),urls)
-        for url in urls[:1]:
+        for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
     def clean_text(self, raw_html):
@@ -83,11 +83,7 @@ class StarTechBDSpider(scrapy.Spider):
 
         product_details['product_url'] = response.url
         product_details['available'] = False if 'Out' in response.css('td.product-status ::text').get() else True
-        product_attrs = response.css('td.product-info-label ::text').getall()
-        product_attr_values = response.css('td.product-info-data ::text').getall()
-
-        for key, value in zip(product_attrs, product_attr_values):
-            if key == "Price":
-                product_details['price'] = value
+        product_details['price'] = round(float(response.css('meta[property="product:price:amount"] ::attr("content")')
+                                               .get()))
         product_details['image_url'] = response.css('img.main-img ::attr("src")').get()
         yield product_details

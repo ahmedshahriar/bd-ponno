@@ -51,9 +51,9 @@ class RyanComputersSpider(scrapy.Spider):
 
         # product_details['old_price'] = unicodedata.normalize("NFKD",
         #                                                      response.css('span.old-price ::text').get().strip())
-        product_details['special_price'] = unicodedata.normalize("NFKD", response.css(
-            'div.special-price span.price ::text').get().strip())
-        product_details['price'] = product_details['special_price']
+        special_price = unicodedata.normalize("NFKD", response.css(
+            'div.special-price span.price ::text').get().strip().replace(',', ''))
+        product_details['price'] = round(float(special_price))
         product_details['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
             .get().strip().replace('thumbnail', 'main')
         product_details['available'] = False if response.css('div.out-of-stock-wrapper') else True

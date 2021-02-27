@@ -58,6 +58,7 @@ class UCCSpider(scrapy.Spider):
 
         product_details['available'] = True if 'In' in response.css(
             'div[title="Availability"] span ::text').get().strip() else False
-        product_details['price'] = response.css('meta[property="product:price:amount"] ::attr("content") ').get()
+        product_details['price'] = round(
+            float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
         product_details['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
         yield product_details
