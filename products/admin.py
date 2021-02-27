@@ -39,7 +39,7 @@ export_to_csv.short_description = 'Export to CSV'
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display
-    list_display = ('vendor', 'name', 'show_product_url', 'price', 'image_url', 'available')
+    list_display = ('name', 'vendor', 'show_product_url', 'price', 'show_image_url', 'available')
     list_filter = ('vendor', 'available', 'created')
     search_fields = ('name',)
     date_hierarchy = 'created'
@@ -48,6 +48,9 @@ class ProductAdmin(admin.ModelAdmin):
 
     # https://stackoverflow.com/a/31745953/11105356
     def show_product_url(self, obj):
+        return format_html("<a href='{url}'>{url}</a>", url=obj.product_url)
+
+    def show_image_url(self, obj):
         return format_html("<a href='{url}'>{url}</a>", url=obj.product_url)
 
     show_product_url.short_description = "Product URL"

@@ -88,4 +88,4 @@ class StarTechBDSpider(scrapy.Spider):
         item['price'] = round(float(response.css('meta[property="product:price:amount"] ::attr("content")')
                                                .get()))
         item['image_url'] = response.css('img.main-img ::attr("src")').get()
-        yield item
+        item.save()
