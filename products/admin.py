@@ -2,7 +2,6 @@ import csv
 import datetime
 
 from django.contrib import admin
-
 # Register your models here.
 from django.http import HttpResponse
 from django.utils.html import format_html
@@ -39,10 +38,10 @@ export_to_csv.short_description = 'Export to CSV'
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display
-    list_display = ('name', 'vendor', 'show_product_url', 'price', 'show_image_url', 'available')
+    list_display = ('name', 'vendor', 'show_product_url', 'show_image_url', 'price', 'available')
     list_filter = ('vendor', 'available', 'created')
     search_fields = ('name',)
-    date_hierarchy = 'created'
+    # date_hierarchy = 'created'  # todo needs to workaround with djongo
     ordering = ('created',)
     actions = [export_to_csv]
 
@@ -51,6 +50,6 @@ class ProductAdmin(admin.ModelAdmin):
         return format_html("<a href='{url}'>{url}</a>", url=obj.product_url)
 
     def show_image_url(self, obj):
-        return format_html("<a href='{url}'>{url}</a>", url=obj.product_url)
+        return format_html("<a href='{url}'>{url}</a>", url=obj.image_url)
 
     show_product_url.short_description = "Product URL"
