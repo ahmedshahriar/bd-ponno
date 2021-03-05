@@ -1,4 +1,6 @@
-from rest_framework import generics, permissions, filters
+from django_filters import rest_framework as filters
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import generics, permissions
 from rest_framework.pagination import PageNumberPagination
 
 from api.serializers import ProductSerializer
@@ -6,22 +8,23 @@ from products.models import Product
 
 
 # Create your views here.
+class ProductFilter(filters.FilterSet):
+    min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
+    max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
+
+    class Meta:
+        model = Product
+        fields = ['in_stock', 'vendor', 'min_price', 'max_price']
+
+
 class ProductListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
     serializer_class = ProductSerializer
 
     queryset = Product.objects.all()
-    filter_backends = [filters.SearchFilter]
+
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_class = ProductFilter
+
     search_fields = ['name']
-
-    pagination_class = PageNumberPagination
-
-
-class ProductSearchView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = ProductSerializer
-
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
-
     pagination_class = PageNumberPagination

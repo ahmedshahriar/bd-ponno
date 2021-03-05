@@ -58,7 +58,7 @@ class UCCSpider(scrapy.Spider):
 
         # product_details['category'] = response.css('ul.items li.item.category a ::text').get()
 
-        item['available'] = True if 'In' in response.css(
+        item['in_stock'] = True if 'In' in response.css(
             'div[title="Availability"] span ::text').get().strip() else False
         item['price'] = round(
             float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))

@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 # custom application
 CUSTOM_APPS = ['products', 'ponnobot', 'api', ]
 
-PACKAGES = ['rest_framework', 'rest_framework.authtoken', 'corsheaders', ]
+PACKAGES = ['rest_framework', 'rest_framework.authtoken', 'corsheaders', 'django_filters', ]
 
 # Application definition
 

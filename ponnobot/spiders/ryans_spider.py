@@ -70,5 +70,5 @@ class RyanComputersSpider(scrapy.Spider):
         item['price'] = round(float(special_price))
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
             .get().strip().replace('thumbnail', 'main')
-        item['available'] = False if response.css('div.out-of-stock-wrapper') else True
+        item['in_stock'] = False if response.css('div.out-of-stock-wrapper') else True
         item.save()
