@@ -10,4 +10,5 @@ def subprocess_cmd(command):
 
 subprocess_cmd('python manage.py startech_crawl')
 subprocess_cmd('python manage.py ryans_crawl')
+subprocess_cmd('python manage.py c_source_crawl')
 subprocess_cmd('python manage.py ucc_crawl')

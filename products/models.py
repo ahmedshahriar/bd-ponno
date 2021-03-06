@@ -6,6 +6,8 @@ from djongo import models
 # https://github.com/nesdis/djongo/pull/525/commits/86dbe3918ac4b2299d6aa3249a4509996f53920c
 
 # add this code segment in  the djongo/operations.py file  and convert it to use DecimalField
+
+# import bson
 # def adapt_decimalfield_value(self, value, max_digits=None, decimal_places=None):
 #     if value is None:
 #         return None
