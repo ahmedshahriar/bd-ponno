@@ -35,4 +35,7 @@ class ComputerSourceSpider(scrapy.Spider):
         item['name'] = response.css('div.product_d_right h1 ::text').get()
         item['product_url'] = response.url
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
-        yield item
+        _, item['price'] = (
+            re.findall(r'-?\d+\.?\d*', p.strip().replace(',', ''))[0] for p in
+            response.css('span.new_price ::text').getall())
+        item.save()
