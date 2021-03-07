@@ -1,4 +1,8 @@
+import unicodedata
+
 import scrapy
+
+from ponnobot.items import ProductItem
 
 
 class PenguinBDSpider(scrapy.Spider):
@@ -19,14 +23,14 @@ class PenguinBDSpider(scrapy.Spider):
         :return: products and pagination callback
         """
         """ parse products """
-        # product_page_links = response.css('div.product-element-top a ::attr("href")')
-        # yield from response.follow_all(product_page_links, self.parse_product)
+        product_page_links = response.css('div.product-element-top a ::attr("href")')
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         """ parse test for a single product """
         # single_product_url = 'https://www.penguin.com.bd/product/d-link-dir-615x1-n300-300mbps-wireless-router/'
         # single_product_url = 'https://www.penguin.com.bd/product/brilliant-kn95-disposable-stereo-protective-face-mask-2pcs/'
-        single_product_url = 'https://www.penguin.com.bd/product/anker-soundcore-life-q10-hi-res-wireless-headphones-black/'
-        yield response.follow(single_product_url)
+        # single_product_url = 'https://www.penguin.com.bd/product/anker-soundcore-life-q10-hi-res-wireless-headphones-black/'
+        # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
         try:
@@ -41,3 +45,21 @@ class PenguinBDSpider(scrapy.Spider):
             print(te)
         except ValueError as ve:
             print(ve)
+
+    def parse_product(self, response):
+        """
+        :param response:
+        :return: product details dictionary
+        """
+        item = ProductItem()
+        item['vendor'] = self.name
+        item['product_url'] = response.url
+        item['name'] = response.css('div.summary-inner h1[itemprop="name"] ::text').get()
+        item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
+        # todo formatting price
+        # item['price'] = response.css('div.summary-inner p.price bdi::text').getall()
+        item['in_stock'] = response.css('p.stock.out-of-stock ::text').get()
+        # todo stock
+        # https://www.penguin.com.bd/product/xiaomi-mijia-smart-weight-scale-2/
+        # https://www.penguin.com.bd/product/anker-bolder-lc90-superbright-flashlight/
+        yield item
