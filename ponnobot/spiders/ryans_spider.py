@@ -22,7 +22,7 @@ class RyanComputersSpider(scrapy.Spider):
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         """
         :param response:
         :return: products and pagination callback
