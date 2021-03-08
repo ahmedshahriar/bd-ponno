@@ -9,13 +9,14 @@ class PenguinBDSpider(scrapy.Spider):
     name = "penguin"
     allowed_domains = ['penguin.com.bd']
     start_urls = ['https://www.penguin.com.bd/product-category/health-care-essentials',
-                  'https://www.penguin.com.bd/product-category/smart-home',
-                  'https://www.penguin.com.bd/product-category/audio',
-                  'https://www.penguin.com.bd/product-category/wearables',
-                  'https://www.penguin.com.bd/product-category/charging-accessories',
-                  'https://www.penguin.com.bd/product-category/mobile',
-                  'https://www.penguin.com.bd/product-category/computers',
-                  'https://www.penguin.com.bd/product-category/electronics']
+                  # 'https://www.penguin.com.bd/product-category/smart-home',
+                  # 'https://www.penguin.com.bd/product-category/audio',
+                  # 'https://www.penguin.com.bd/product-category/wearables',
+                  # 'https://www.penguin.com.bd/product-category/charging-accessories',
+                  # 'https://www.penguin.com.bd/product-category/mobile',
+                  # 'https://www.penguin.com.bd/product-category/computers',
+                  # 'https://www.penguin.com.bd/product-category/electronics'
+                  ]
 
     def parse(self, response, **kwargs):
         """
@@ -23,7 +24,7 @@ class PenguinBDSpider(scrapy.Spider):
         :return: products and pagination callback
         """
         """ parse products """
-        product_page_links = response.css('div.product-element-top a ::attr("href")')
+        product_page_links = response.css('div.product-element-top > a:first-child ::attr("href")')
         yield from response.follow_all(product_page_links, self.parse_product)
 
         """ parse test for a single product """
@@ -57,8 +58,8 @@ class PenguinBDSpider(scrapy.Spider):
         item['name'] = response.css('div.summary-inner h1[itemprop="name"] ::text').get()
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
         # todo formatting price
-        # item['price'] = response.css('div.summary-inner p.price bdi::text').getall()
-        item['in_stock'] = response.css('p.stock.out-of-stock ::text').get()
+        item['price'] = response.css('meta[property="product:price:amount"] ::attr("content")').get()
+        item['in_stock'] = False if response.css('p.stock.out-of-stock ::text').get() else True
         # todo stock
         # https://www.penguin.com.bd/product/xiaomi-mijia-smart-weight-scale-2/
         # https://www.penguin.com.bd/product/anker-bolder-lc90-superbright-flashlight/
