@@ -57,10 +57,6 @@ class PenguinBDSpider(scrapy.Spider):
         item['product_url'] = response.url
         item['name'] = response.css('div.summary-inner h1[itemprop="name"] ::text').get()
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
-        # todo formatting price
         item['price'] = response.css('meta[property="product:price:amount"] ::attr("content")').get()
         item['in_stock'] = False if response.css('p.stock.out-of-stock ::text').get() else True
-        # todo stock
-        # https://www.penguin.com.bd/product/xiaomi-mijia-smart-weight-scale-2/
-        # https://www.penguin.com.bd/product/anker-bolder-lc90-superbright-flashlight/
         yield item
