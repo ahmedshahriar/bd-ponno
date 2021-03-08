@@ -30,13 +30,12 @@ class MKElectronicsSpider(scrapy.Spider):
         # global link
 
         """ parse products """
-        # product_page_links = response.css('a.product-item-link ')
-        # yield from response.follow_all(product_page_links, self.parse_product)
+        product_page_links = response.css('a.product-item-link ')
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         # """ parse test for a single product """
-        single_product_url = 'https://www.mke.com.bd/samsung-ua78ks9000k-4k-curved-smart-tv'
-
-        yield response.follow(single_product_url, callback=self.parse_product)
+        # single_product_url = 'https://www.mke.com.bd/samsung-ua78ks9000k-4k-curved-smart-tv'
+        # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
         try:
@@ -55,9 +54,9 @@ class MKElectronicsSpider(scrapy.Spider):
         item = ProductItem()
         item['vendor'] = self.name
         item['product_url'] = response.url
-        item['name'] = response.css('h1.page-title span ::text').get()
-        item['brand'] = response.css('meta[property="product:brand"] ::attr("content") ').get()
+        item['name'] = response.css('meta[property="og:title"] ::attr("content") ').get()
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content") ').get()
-        item['price'] = response.css('span#product-price-8 span.price ::text').get()
-        item['in_stock'] = response.css('meta[property="product:availability"] ::attr("content") ').get()
+        item['price'] = response.css('meta[property="product:price:amount"] ::attr("content") ').get()
+        item['in_stock'] = True if 'in' in response.css(
+            'meta[property="product:availability"] ::attr("content") ').get().lower() else False
         yield item
