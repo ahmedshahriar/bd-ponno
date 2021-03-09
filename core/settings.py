@@ -55,10 +55,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8000',
-]
+# CORS_ALLOW_ALL_ORIGINS = False
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:8000',
+# ]
 
 ROOT_URLCONF = 'core.urls'
 
@@ -108,9 +108,9 @@ DATABASES = {
         'NAME': 'bd-ponno',
         'HOST': '127.0.0.1',
         'PORT': 27017,
-        'CLIENT': {
-           'host': 'localhost:27017',
-        }
+        # 'CLIENT': {
+        #    'host': 'localhost:27017',
+        # }
     }
 }
 

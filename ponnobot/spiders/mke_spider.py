@@ -7,19 +7,20 @@ class MKElectronicsSpider(scrapy.Spider):
     name = "mke"
     allowed_domains = ['mke.com.bd']
 
-    # start_urls = ['https://www.mke.com.bd/televisions?p=1',
-    #               # 'https://www.mke.com.bd/air-conditioners',
-    #               # 'https://www.mke.com.bd/refrigerators-freezers',
-    #               # 'https://www.mke.com.bd/cooling-heating-appliances',
-    #               # 'https://www.mke.com.bd/wash-dry-cleaning-appliances',
-    #               # 'https://www.mke.com.bd/kitchen-appliances',
-    #               # 'https://www.mke.com.bd/audio-video',
-    #               # 'https://www.mke.com.bd/personal-care-appliances',
-    #               # 'https://www.mke.com.bd/water-treatment-appliances',
-    #               # 'https://www.mke.com.bd/small-household-appliances',
-    #               # 'https://www.mke.com.bd/accessories'
-    #               ]
-    start_urls = ['https://www.mke.com.bd/televisions']
+    start_urls = ['https://www.mke.com.bd/televisions?p=1',
+                  'https://www.mke.com.bd/air-conditioners',
+                  'https://www.mke.com.bd/refrigerators-freezers',
+                  'https://www.mke.com.bd/cooling-heating-appliances',
+                  'https://www.mke.com.bd/wash-dry-cleaning-appliances',
+                  'https://www.mke.com.bd/kitchen-appliances',
+                  'https://www.mke.com.bd/audio-video',
+                  'https://www.mke.com.bd/personal-care-appliances',
+                  'https://www.mke.com.bd/water-treatment-appliances',
+                  'https://www.mke.com.bd/small-household-appliances',
+                  'https://www.mke.com.bd/accessories'
+                  ]
+
+    # start_urls = ['https://www.mke.com.bd/televisions']
 
     def parse(self, response, **kwargs):
         """
