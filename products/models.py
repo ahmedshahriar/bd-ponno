@@ -15,6 +15,7 @@
 #     if value is None:
 #         return None
 #     return bson.Decimal128(super().adapt_decimalfield_value(value, max_digits, decimal_places))
+from django.template.defaultfilters import truncatechars
 from djongo import models
 
 
@@ -35,6 +36,7 @@ class Product(models.Model):
         indexes = [
             models.Index(fields=['name'], name='%(app_label)s_%(class)s_name_index'),
         ]
+
 
     def __str__(self):
         return self.name

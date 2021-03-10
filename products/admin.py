@@ -47,10 +47,12 @@ class ProductAdmin(admin.ModelAdmin):
 
     # https://stackoverflow.com/a/31745953/11105356
     def show_product_url(self, obj):
-        return format_html("<a target=”_blank” href='{url}'>{url}</a>", url=obj.product_url)
+        return format_html("<a target=”_blank” href='{url}'>{url_text}...</a>", url=obj.product_url,
+                           url_text=obj.product_url[:39])
 
     def show_image_url(self, obj):
-        return format_html("<a target=”_blank” href='{url}'>{url}</a>", url=obj.image_url)
+        return format_html("<a target=”_blank” href='{url}'>{url_text}...</a>", url=obj.image_url,
+                           url_text=obj.image_url[:39])
 
     show_product_url.short_description = "Product URL"
     show_image_url.short_description = "Image URL"

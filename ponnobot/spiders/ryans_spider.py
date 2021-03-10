@@ -67,7 +67,7 @@ class RyanComputersSpider(scrapy.Spider):
         #                                                      response.css('span.old-price ::text').get().strip())
         special_price = unicodedata.normalize("NFKD", response.css(
             'div.special-price span.price ::text').get().strip().replace(',', ''))
-        item['price'] = round(float(special_price))
+        item['price'] = int(float(special_price))
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
             .get().strip().replace('thumbnail', 'main')
         item['in_stock'] = False if response.css('div.out-of-stock-wrapper') else True

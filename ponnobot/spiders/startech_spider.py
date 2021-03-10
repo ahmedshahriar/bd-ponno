@@ -85,7 +85,7 @@ class StarTechBDSpider(scrapy.Spider):
 
         item['product_url'] = response.url
         item['in_stock'] = False if 'Out' in response.css('td.product-status ::text').get() else True
-        item['price'] = round(float(response.css('meta[property="product:price:amount"] ::attr("content")')
-                                               .get()))
+        item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")')
+                            .get()))
         item['image_url'] = response.css('img.main-img ::attr("src")').get()
         item.save()
