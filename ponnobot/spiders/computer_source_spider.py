@@ -1,4 +1,5 @@
 import re
+from pprint import pprint
 
 import scrapy
 
@@ -35,7 +36,13 @@ class ComputerSourceSpider(scrapy.Spider):
         item['name'] = response.css('div.product_d_right h1 ::text').get()
         item['product_url'] = response.url
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
-        _, item['price'] = (
-            re.findall(r'-?\d+\.?\d*', p.strip().replace(',', ''))[0] for p in
-            response.css('span.new_price ::text').getall())
-        item.save()
+        try:
+            _, price = (
+                re.findall(r'-?\d+\.?\d*', p.strip().replace(',', ''))[0] for p in
+                response.css('span.new_price ::text').getall())
+            item['price'] = int(float(price))
+        except ValueError as ve:
+            print(ve,'##############################################################################', response.url)
+        item['in_stock'] = False if response.css('p.stock.out-of-stock ::text').get() else True
+        # item.save()
+        yield item

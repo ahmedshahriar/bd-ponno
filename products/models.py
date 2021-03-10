@@ -15,7 +15,7 @@
 #     if value is None:
 #         return None
 #     return bson.Decimal128(super().adapt_decimalfield_value(value, max_digits, decimal_places))
-from django.template.defaultfilters import truncatechars
+# from django.template.defaultfilters import truncatechars
 from djongo import models
 
 
@@ -37,6 +37,11 @@ class Product(models.Model):
             models.Index(fields=['name'], name='%(app_label)s_%(class)s_name_index'),
         ]
 
+    # https://stackoverflow.com/questions/40275617/django-admin-truncate-text-in-list-display
+    # @property
+    # def short_name(self):
+    #     # return self.name[:60]+'...'
+    #     return truncatechars(self.name + '...', 35)
 
     def __str__(self):
         return self.name

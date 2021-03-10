@@ -18,7 +18,7 @@ class UCCSpider(scrapy.Spider):
         urls = response.css('div.block-vmagicmenu-content ul.nav-desktop li.level1.category-item > a:first-child '
                             '::attr("href")').getall()
         # print(len(urls),urls)
-        for url in urls:
+        for url in urls[:1]:
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
@@ -34,21 +34,22 @@ class UCCSpider(scrapy.Spider):
         """ parse test for a single product """
         # single_product_url = 'https://ucc-bd.com/msi-meg-z490-unify-motherboard.html'
         # single_product_url = 'https://ucc-bd.com/msi-b560m-pro-motherboard.html'
+        # single_product_url = 'https://ucc-bd.com/transcend-ts32gjf880s-jetflash-880-32gb-otg-usb3-0-silver.html'
         # yield response.follow(single_product_url,
         #                       callback=self.parse_product)
 
         """ pagination """
-        # try:
-        #     pagination_links = response.css('div.pages ul li a[title="Next"] ::attr("href")').get()
-        #     yield response.follow(pagination_links, self.parse)
-        # except IndexError as ie:
-        #     # logging.info(ie, logging.WARN)
-        #     print(ie)
-        # except TypeError as te:
-        #     # logging.info(te, logging.WARN)
-        #     print(te)
-        # except ValueError as ve:
-        #     print(ve)
+        try:
+            pagination_links = response.css('div.pages ul li a[title="Next"] ::attr("href")').get()
+            yield response.follow(pagination_links, self.parse)
+        except IndexError as ie:
+            # logging.info(ie, logging.WARN)
+            print(ie)
+        except TypeError as te:
+            # logging.info(te, logging.WARN)
+            print(te)
+        except ValueError as ve:
+            print(ve)
 
     def parse_product(self, response):
         item = ProductItem()
@@ -62,4 +63,5 @@ class UCCSpider(scrapy.Spider):
             'div[title="Availability"] span ::text').get().strip() else False
         item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
         item['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
-        item.save()
+        yield item
+        # item.save()
