@@ -53,11 +53,15 @@ class MKElectronicsSpider(scrapy.Spider):
 
     def parse_product(self, response):
         item = ProductItem()
-        item['vendor'] = self.name
-        item['product_url'] = response.url
-        item['name'] = response.css('meta[property="og:title"] ::attr("content") ').get()
-        item['image_url'] = response.css('meta[property="og:image"] ::attr("content") ').get()
-        item['price'] = response.css('meta[property="product:price:amount"] ::attr("content") ').get()
-        item['in_stock'] = True if 'in' in response.css(
-            'meta[property="product:availability"] ::attr("content") ').get().lower() else False
-        yield item
+        try:
+            item['vendor'] = self.name
+            item['product_url'] = response.url
+            item['name'] = response.css('meta[property="og:title"] ::attr("content") ').get()
+            item['image_url'] = response.css('meta[property="og:image"] ::attr("content") ').get()
+            item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content") ').get()))
+            item['in_stock'] = True if 'in' in response.css(
+                'meta[property="product:availability"] ::attr("content") ').get().lower() else False
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
+            item.save()
