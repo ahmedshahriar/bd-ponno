@@ -1,5 +1,7 @@
 import scrapy
 
+from ponnobot.items import ProductItem
+
 
 class OthobaSpider(scrapy.Spider):
     name = "othoba"
@@ -25,8 +27,8 @@ class OthobaSpider(scrapy.Spider):
         :return: products and pagination callback
         """
         """ parse products """
-        # product_page_links = response.css('div.product-item div  a ')
-        # yield from response.follow_all(product_page_links, self.parse_product)
+        product_page_links = response.css('div.product-item div  a ')
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         """ pagination """
         try:
@@ -40,3 +42,16 @@ class OthobaSpider(scrapy.Spider):
             print(te)
         except ValueError as ve:
             print(ve)
+
+    def parse_product(self, response):
+        """
+        :param response:
+        :return: product details dictionary
+        """
+        item = ProductItem()
+        item['name'] = response.css('h1[itemprop="name"] ::text').get().strip()
+        item['price'] = response.css('div.product-price span ::attr("content")').get()
+        item['brand'] = response.css('div.manufacturers span[itemprop="name"] a ::text').get()
+        item['sku'] = response.css('div.sku span[itemprop="sku"] ::text').get()
+        item['seller'] = response.css('div.product-vendor span.value a ::text').get()
+        yield item
