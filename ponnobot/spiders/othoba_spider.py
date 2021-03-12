@@ -16,9 +16,10 @@ class OthobaSpider(scrapy.Spider):
 
     def begin_parse(self, response):
         urls = response.css('ul li.lnkHeading a ::attr("href")').getall()
-        # print(len(urls),urls)
-        for url in urls:
+        # print(len(urls), urls)
+        for url in urls[:1]:
             url = 'https://www.othoba.com' + str(url)
+            # print(url, sep='\n')
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response, **kwargs):
@@ -26,9 +27,15 @@ class OthobaSpider(scrapy.Spider):
         :param response:
         :return: products and pagination callback
         """
+
+        # todo sold out products from thumbnail
         """ parse products """
-        product_page_links = response.css('div.product-item div  a ')
+        product_page_links = response.css('div.product-item > div.picture  a ')
         yield from response.follow_all(product_page_links, self.parse_product)
+
+        """ parse test for a single product """
+        # single_product_url = 'https://www.othoba.com/moveable-luxurious-garden-umbrella-60-aku00055' #stock issue
+        # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
         try:
@@ -49,9 +56,14 @@ class OthobaSpider(scrapy.Spider):
         :return: product details dictionary
         """
         item = ProductItem()
-        item['name'] = response.css('h1[itemprop="name"] ::text').get().strip()
-        item['price'] = response.css('div.product-price span ::attr("content")').get()
-        item['brand'] = response.css('div.manufacturers span[itemprop="name"] a ::text').get()
-        item['sku'] = response.css('div.sku span[itemprop="sku"] ::text').get()
-        item['seller'] = response.css('div.product-vendor span.value a ::text').get()
-        yield item
+        try:
+            item['vendor'] = self.name
+            item['product_url'] = response.url
+            item['name'] = response.css('h1[itemprop="name"] ::text').get().strip()
+            item['image_url'] = response.css('meta[property="og:image"] ::attr("content") ').get()
+            item['price'] = int(float(response.css('div.product-price span ::attr("content")').get()))
+            item['in_stock'] = False if response.css('span.sold-out').get() else True
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
+            item.save()

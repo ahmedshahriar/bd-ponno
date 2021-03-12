@@ -34,7 +34,7 @@ class MKElectronicsSpider(scrapy.Spider):
         product_page_links = response.css('a.product-item-link ')
         yield from response.follow_all(product_page_links, self.parse_product)
 
-        # """ parse test for a single product """
+        """ parse test for a single product """
         # single_product_url = 'https://www.mke.com.bd/samsung-ua78ks9000k-4k-curved-smart-tv'
         # yield response.follow(single_product_url, callback=self.parse_product)
 
