@@ -1,5 +1,7 @@
 import scrapy
 
+from ponnobot.items import ProductItem
+
 
 class RokomariBookSpider(scrapy.Spider):
     name = "rokomari"
@@ -11,7 +13,7 @@ class RokomariBookSpider(scrapy.Spider):
 
     def begin_parse(self, response):
         urls = response.css('div.pFIrstCatCaroItem a ::attr("href")').getall()
-        print(len(urls),urls)
+        print(len(urls), urls)
         for url in urls[1:]:
             url = 'https://www.rokomari.com' + str(url)
             yield scrapy.Request(url=url, callback=self.parse)
@@ -49,8 +51,12 @@ class RokomariBookSpider(scrapy.Spider):
         :param response:
         :return: product details dictionary
         """
-        product_details = dict()
-        product_details['title'] = response.css('div.details-book-main-info__header h1 ::text').get().strip()
-        product_details['selling_price'] = response.css(
-            'div.details-book-info__content-book-price span.sell-price ::text').get().strip()
-        yield product_details
+        item = ProductItem()
+        item['vendor'] = self.name
+        item['product_url'] = response.url
+        item['name'] = response.css('div.details-book-main-info__header h1 ::text').get().strip()
+        item['price'] = int(
+            float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
+        item['in_stock'] = False if 'in' in response.css(
+            'meta[property="product:availability"] ::attr("content")').get().strip().lower() else True
+        yield item
