@@ -59,4 +59,5 @@ class RokomariBookSpider(scrapy.Spider):
             float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
         item['in_stock'] = False if 'in' in response.css(
             'meta[property="product:availability"] ::attr("content")').get().strip().lower() else True
+        item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get().strip()
         yield item
