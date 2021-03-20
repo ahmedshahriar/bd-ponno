@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -35,13 +34,13 @@ PACKAGES = ['rest_framework', 'rest_framework.authtoken', 'corsheaders', 'django
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-] + CUSTOM_APPS + PACKAGES
+                     'django.contrib.admin',
+                     'django.contrib.auth',
+                     'django.contrib.contenttypes',
+                     'django.contrib.sessions',
+                     'django.contrib.messages',
+                     'django.contrib.staticfiles',
+                 ] + CUSTOM_APPS + PACKAGES
 
 MIDDLEWARE = [
     # CORS
@@ -80,11 +79,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'mydatabase',
@@ -132,7 +130,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -145,7 +142,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -161,4 +157,4 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240 # higher than the count of fields
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 50240  # higher than the count of fields
