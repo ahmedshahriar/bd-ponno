@@ -16,3 +16,6 @@ class DarazSpider(scrapy.Spider):
     def begin_parse(self, response):
         urls = response.css('ul.lzd-site-menu-sub li.lzd-site-menu-sub-item > a::attr("href")').getall()
         print(len(urls))
+        for url in urls:
+            url = "https:" + str(url)
+            print(url)
