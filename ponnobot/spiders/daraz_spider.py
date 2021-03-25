@@ -9,10 +9,11 @@ class DarazSpider(scrapy.Spider):
     name = "daraz"
     allowed_domains = ['daraz.com.bd']
 
-    def start_requests(self):
-        url = 'https://www.daraz.com.bd'
+    BASE_URL = 'https://www.daraz.com.bd'
 
-        yield scrapy.Request(url=url, callback=self.begin_parse)
+    def start_requests(self):
+
+        yield scrapy.Request(url=self.BASE_URL, callback=self.begin_parse)
 
     def begin_parse(self, response):
         urls = response.css('ul.lzd-site-menu-sub li.lzd-site-menu-sub-item > a::attr("href")').getall()
@@ -26,11 +27,11 @@ class DarazSpider(scrapy.Spider):
         :return: products and pagination callback
         """
         """ parse products """
-        BASE_URL = 'https://www.daraz.com.bd'
+
         raw_product_list = re.compile(r'window.pageData=(.*)</script>').search(response.text)
         product_list = json.loads(raw_product_list.group(1).strip())['mods']['listItems']
-        product_page_links = [urljoin(BASE_URL, product["thumbs"][0]['productUrl']) for product in product_list]
-
+        product_page_links = [urljoin(self.BASE_URL, product["thumbs"][0]['productUrl']) for product in product_list]
+        yield from response.follow_all(product_page_links[:1], self.parse_product)
         """ pagination """
         # try:
         #     pagination_links = response.css('link[rel="next"] ::attr("href")').get()
@@ -43,3 +44,17 @@ class DarazSpider(scrapy.Spider):
         #     print(te)
         # except ValueError as ve:
         #     print(ve)
+
+    def parse_product(self, response):
+        # item = {}
+        raw_product_data = re.compile(r'app.run\((.*)\);').search(response.text)
+        print(json.loads(raw_product_data.group(1).strip())['data']['root']['fields']['skuInfos']['0'])
+        # print(raw_product_data.group(1))
+        # try:
+        #     item['vendor'] = self.name
+        #     # item['product_url'] = response.url
+        #
+        # except Exception as e:
+        #     print(e, response.url)
+        # if item['vendor'] is not None:
+        #     yield item
