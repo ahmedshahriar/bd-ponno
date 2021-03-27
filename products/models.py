@@ -26,6 +26,7 @@ class Product(models.Model):
     price = models.IntegerField(blank=True, null=True, default=0)
     image_url = models.CharField(max_length=255, blank=True, null=True)
     in_stock = models.BooleanField(blank=True, null=True)
+    category = models.CharField(max_length=255, blank=False, null=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
