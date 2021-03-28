@@ -33,7 +33,7 @@
 #### Food
 
 * [jogaan](https://www.jogaan.com)
-* [Chaldal](https://chaldal.com)
+* [Chaldal](https://chaldal.com) *parsed
 * [khaasfood](https://www.khaasfood.com)
 * [marketbangla](https://marketbangla.com)
 
