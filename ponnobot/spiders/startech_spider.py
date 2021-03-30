@@ -80,12 +80,13 @@ class StarTechBDSpider(scrapy.Spider):
         item['vendor'] = self.name
         item['name'] = extract_with_css('h1.product-name ::text')
         # todo nested category
-        # product_details['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
-        # product_details['category'] = response.css('span[itemprop="name"] ::text').get()
+        # item['category'] = response.css('span[itemprop="name"] ::text').getall()[:-1]
+        item['category'] = response.css('span[itemprop="name"] ::text').get()
 
         item['product_url'] = response.url
         item['in_stock'] = False if 'Out' in response.css('td.product-status ::text').get() else True
         item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")')
                             .get()))
         item['image_url'] = response.css('img.main-img ::attr("src")').get()
-        item.save()
+        yield item
+        # item.save()

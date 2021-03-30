@@ -16,15 +16,16 @@
 #         return None
 #     return bson.Decimal128(super().adapt_decimalfield_value(value, max_digits, decimal_places))
 # from django.template.defaultfilters import truncatechars
+from django.core.validators import URLValidator
 from djongo import models
 
 
 class Product(models.Model):
     vendor = models.CharField(max_length=100, blank=False, null=False)
     name = models.CharField(max_length=255, blank=False, null=False)
-    product_url = models.CharField(max_length=255, blank=False, null=False)
+    product_url = models.URLField(blank=False, null=False, validators=[URLValidator])
     price = models.IntegerField(blank=True, null=True, default=0)
-    image_url = models.CharField(max_length=255, blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True, validators=[URLValidator])
     in_stock = models.BooleanField(blank=True, null=True)
     category = models.CharField(max_length=255, blank=False, null=False)
     created = models.DateTimeField(auto_now_add=True)
