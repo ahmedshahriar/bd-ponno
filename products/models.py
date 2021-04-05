@@ -20,6 +20,31 @@ from django.core.validators import URLValidator
 from djongo import models
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=200, db_index=True)
+    slug = models.SlugField(max_length=200,
+                            db_index=True,
+                            unique=True)
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'category'
+        verbose_name_plural = 'categories'
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=200)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     vendor = models.CharField(max_length=100, blank=False, null=False)
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -27,7 +52,11 @@ class Product(models.Model):
     price = models.IntegerField(blank=True, null=True, default=0)
     image_url = models.URLField(blank=True, null=True, validators=[URLValidator])
     in_stock = models.BooleanField(blank=True, null=True)
-    category = models.CharField(max_length=255, blank=False, null=False)
+    category = models.ArrayReferenceField(
+        to=Category,
+        on_delete=models.CASCADE,
+    )
+    tags = models.ArrayField(model_container=Tag,)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
