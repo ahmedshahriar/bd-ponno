@@ -42,7 +42,6 @@ class CategoryAdmin(admin.ModelAdmin):
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
 
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display

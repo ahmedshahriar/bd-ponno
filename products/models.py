@@ -55,6 +55,7 @@ class Product(models.Model):
     category = models.ArrayReferenceField(
         to=Category,
         on_delete=models.CASCADE,
+        blank=True
     )
     tags = models.ArrayField(model_container=Tag,)
     created = models.DateTimeField(auto_now_add=True)
