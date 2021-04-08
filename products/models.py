@@ -54,8 +54,8 @@ class Product(models.Model):
     in_stock = models.BooleanField(blank=True, null=True)
     category = models.ArrayReferenceField(
         to=Category,
-        on_delete=models.CASCADE,
-        blank=True
+        blank=True,
+        related_name="products"
     )
     tags = models.ArrayField(model_container=Tag,)
     created = models.DateTimeField(auto_now_add=True)
@@ -68,6 +68,9 @@ class Product(models.Model):
         indexes = [
             models.Index(fields=['name'], name='%(app_label)s_%(class)s_name_index'),
         ]
+
+    def get_categories(self):
+        return "\n".join([p.name for p in self.category.all()])
 
     # https://stackoverflow.com/questions/40275617/django-admin-truncate-text-in-list-display
     # @property

@@ -1,6 +1,8 @@
+import logging
 import re
 
 import scrapy
+from django.utils.text import slugify
 
 from ponnobot.items import ProductItem
 from products.models import Category
@@ -9,26 +11,26 @@ from products.models import Category
 class StarTechBDSpider(scrapy.Spider):
     name = "startech"
     allowed_domains = ['startech.com.bd']
-    start_urls = ['https://startech.com.bd']
+    # start_urls = ['https://startech.com.bd']
 
-    # def start_requests(self):
-    #     url = 'https://startech.com.bd'
-    #     yield scrapy.Request(url=url, callback=self.begin_parse)
-    #
-    # def begin_parse(self, response):
-    #     # https://www.w3schools.com/cssref/css_selectors.asp
-    #     urls = response.css('ul.responsive-menu  li.has-child.c-1 > a:first-child ::attr("href")').getall()
-    #     # print(len(urls),urls)
-    #     for url in urls:
-    #         yield scrapy.Request(url=url, callback=self.parse)
-    #
-    # def clean_text(self, raw_html):
-    #     """
-    #     :param raw_html: this will take raw html code
-    #     :return: text without html tags
-    #     """
-    #     cleaner = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
-    #     return re.sub(cleaner, '', raw_html)
+    def start_requests(self):
+        url = 'https://startech.com.bd'
+        yield scrapy.Request(url=url, callback=self.begin_parse)
+
+    def begin_parse(self, response):
+        # https://www.w3schools.com/cssref/css_selectors.asp
+        urls = response.css('ul.responsive-menu > li.has-child > a:first-child ::attr("href")').getall()
+        print(len(urls),urls)
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+
+    def clean_text(self, raw_html):
+        """
+        :param raw_html: this will take raw html code
+        :return: text without html tags
+        """
+        cleaner = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
+        return re.sub(cleaner, '', raw_html)
 
     def parse(self, response):
         """
@@ -41,14 +43,14 @@ class StarTechBDSpider(scrapy.Spider):
         #     print(img)
 
         """ parse products """
-        # product_page_links = response.css('h4.product-name  a')
-        # yield from response.follow_all(product_page_links, self.parse_product)
+        product_page_links = response.css('h4.product-name  a')
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         """ parse test for a single product """
         # single_product_url = 'https://www.startech.com.bd/logic-x1-14-inch-laptop-cooler'
         # single_product_url = 'https://www.startech.com.bd/chuwi-hi10-air-touch-tablet-and-notebook'
-        single_product_url ='https://www.startech.com.bd/huawei-matebook-d15-laptop'  # out of stock
-        yield response.follow(single_product_url, callback=self.parse_product)
+        # single_product_url ='https://www.startech.com.bd/huawei-matebook-d15-laptop'  # out of stock
+        # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
         try:
@@ -79,21 +81,30 @@ class StarTechBDSpider(scrapy.Spider):
             return response.css(query).get(default='').strip()
 
         # todo nested category
-        category = response.css('span[itemprop="name"] ::text').getall()[:-1]
+        category = response.css('span[itemprop="name"] ::text').get().strip()
+        brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
         # item['category'] = response.css('span[itemprop="name"] ::text').get()
         # item['category'] = Category.objects.first()
+        # category_obj = None
+        try:
+            category_obj = Category.objects.get(name=category)
+            logging.info("category already exists")
+        except Category.DoesNotExist:
+            category_obj = Category(name=category, slug=slugify(category,allow_unicode=True))
+            category_obj.save()
 
         item = ProductItem()
         item['vendor'] = self.name
         item['name'] = extract_with_css('h1.product-name ::text')
-        item['tags'] = [{"name": "elec1"}, {"name": "elec2"}]
+        item['tags'] = [{"name": brand}]
         item['product_url'] = response.url
         item['in_stock'] = False if 'Out' in response.css('td.product-status ::text').get() else True
         item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")')
                                   .get()))
         item['image_url'] = response.css('img.main-img ::attr("src")').get()
         # yield item
+        print(item)
         product_item_new = item.save()
         # todo : insert category object
-        product_item_new.category.add(Category.objects.first())
+        product_item_new.category.add(category_obj)
 

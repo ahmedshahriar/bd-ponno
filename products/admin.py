@@ -38,14 +38,13 @@ export_to_csv.short_description = 'Export to CSV'
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
 
-    def get_prepopulated_fields(self, request, obj=None):
-        return {'slug': ('name',)}
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display
-    list_display = ('name', 'vendor', 'show_product_url', 'show_image_url', 'price', 'in_stock',)
+    list_display = ('name', 'vendor', 'show_product_url', 'show_image_url', 'price', 'in_stock','get_categories','tags')
     list_filter = ('vendor', 'in_stock', 'created')
     search_fields = ('name',)
     # date_hierarchy = 'created'  # todo needs to workaround with djongo
