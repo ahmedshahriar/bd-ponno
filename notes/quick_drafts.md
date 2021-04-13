@@ -36,7 +36,7 @@
 * [Chaldal](https://chaldal.com) *parsed
 * [khaasfood](https://www.khaasfood.com)
 * [marketbangla](https://marketbangla.com)
-
+* [chefcart](https://chefcart.com.bd/shop/)
 
 #### Services
 

@@ -11,7 +11,8 @@ from products.models import Category
 class StarTechBDSpider(scrapy.Spider):
     name = "startech"
     allowed_domains = ['startech.com.bd']
-    # start_urls = ['https://startech.com.bd']
+
+    start_urls = ['https://startech.com.bd']
 
     def start_requests(self):
         url = 'https://startech.com.bd'
@@ -20,7 +21,7 @@ class StarTechBDSpider(scrapy.Spider):
     def begin_parse(self, response):
         # https://www.w3schools.com/cssref/css_selectors.asp
         urls = response.css('ul.responsive-menu > li.has-child > a:first-child ::attr("href")').getall()
-        print(len(urls),urls)
+        print(len(urls), urls)
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -50,6 +51,7 @@ class StarTechBDSpider(scrapy.Spider):
         # single_product_url = 'https://www.startech.com.bd/logic-x1-14-inch-laptop-cooler'
         # single_product_url = 'https://www.startech.com.bd/chuwi-hi10-air-touch-tablet-and-notebook'
         # single_product_url ='https://www.startech.com.bd/huawei-matebook-d15-laptop'  # out of stock
+        # single_product_url = 'https://www.startech.com.bd/optoma-s341'
         # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
@@ -81,30 +83,35 @@ class StarTechBDSpider(scrapy.Spider):
             return response.css(query).get(default='').strip()
 
         # todo nested category
-        category = response.css('span[itemprop="name"] ::text').get().strip()
+        category_count = len(response.css('span[itemprop="name"] ::text').getall())
+        if category_count > 1:
+            category = response.css('span[itemprop="name"] ::text').get().strip()
+        else:
+            category = "other"
         brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
+
         # item['category'] = response.css('span[itemprop="name"] ::text').get()
         # item['category'] = Category.objects.first()
-        # category_obj = None
+        category_obj = None
         try:
             category_obj = Category.objects.get(name=category)
             logging.info("category already exists")
         except Category.DoesNotExist:
-            category_obj = Category(name=category, slug=slugify(category,allow_unicode=True))
+            category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
             category_obj.save()
 
         item = ProductItem()
         item['vendor'] = self.name
         item['name'] = extract_with_css('h1.product-name ::text')
-        item['tags'] = [{"name": brand}]
+        item['tags'] = [{"name": brand}, {"name": "tech"}]
         item['product_url'] = response.url
-        item['in_stock'] = False if 'Out' in response.css('td.product-status ::text').get() else True
+        item['in_stock'] = 0 if 'Out' in response.css('td.product-status ::text').get() else 1
         item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")')
                                   .get()))
         item['image_url'] = response.css('img.main-img ::attr("src")').get()
-        # yield item
-        print(item)
-        product_item_new = item.save()
-        # todo : insert category object
-        product_item_new.category.add(category_obj)
 
+        # yield item
+        product_item_new = item.save()
+
+        # insert category object
+        product_item_new.category.add(category_obj)

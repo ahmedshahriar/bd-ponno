@@ -1,21 +1,24 @@
+import logging
 import unicodedata
 
 import scrapy
+from django.utils.text import slugify
 
 from ponnobot.items import ProductItem
+from products.models import Category
 
 
 class PenguinBDSpider(scrapy.Spider):
     name = "penguin"
     allowed_domains = ['penguin.com.bd']
     start_urls = ['https://www.penguin.com.bd/product-category/health-care-essentials',
-                  'https://www.penguin.com.bd/product-category/smart-home',
-                  'https://www.penguin.com.bd/product-category/audio',
-                  'https://www.penguin.com.bd/product-category/wearables',
-                  'https://www.penguin.com.bd/product-category/charging-accessories',
-                  'https://www.penguin.com.bd/product-category/mobile',
-                  'https://www.penguin.com.bd/product-category/computers',
-                  'https://www.penguin.com.bd/product-category/electronics'
+                  # 'https://www.penguin.com.bd/product-category/smart-home',
+                  # 'https://www.penguin.com.bd/product-category/audio',
+                  # 'https://www.penguin.com.bd/product-category/wearables',
+                  # 'https://www.penguin.com.bd/product-category/charging-accessories',
+                  # 'https://www.penguin.com.bd/product-category/mobile',
+                  # 'https://www.penguin.com.bd/product-category/computers',
+                  # 'https://www.penguin.com.bd/product-category/electronics'
                   ]
 
     def parse(self, response, **kwargs):
@@ -31,8 +34,8 @@ class PenguinBDSpider(scrapy.Spider):
         # single_product_url = 'https://www.penguin.com.bd/product/d-link-dir-615x1-n300-300mbps-wireless-router/'
         # single_product_url = 'https://www.penguin.com.bd/product/brilliant-kn95-disposable-stereo-protective-face-mask-2pcs/'
         # single_product_url = 'https://www.penguin.com.bd/product/anker-soundcore-life-q10-hi-res-wireless-headphones-black/'
-        # single_product_url = 'https://www.penguin.com.bd/product/xiaomi-mijia-air-wear-anti-haze-face-mask/' # price issue
-        # yield response.follow(single_product_url, callback=self.parse_product)
+        single_product_url = 'https://www.penguin.com.bd/product/xiaomi-mijia-air-wear-anti-haze-face-mask/' # price issue
+        yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
         try:
@@ -59,6 +62,17 @@ class PenguinBDSpider(scrapy.Spider):
         item['product_url'] = response.url
         item['name'] = response.css('div.summary-inner h1[itemprop="name"] ::text').get().strip()
         item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
+        brand = response.css('div.woodmart-product-brand a img ::attr("title")').get()
+        category = response.css('nav.woocommerce-breadcrumb a.breadcrumb-link ::text').getall()[1]
+
+        # category_obj = None
+        # try:
+        #     category_obj = Category.objects.get(name=category)
+        #     logging.info("category already exists")
+        # except Category.DoesNotExist:
+        #     category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+        #     category_obj.save()
+        item['tags'] = [{"name": brand}] if brand else ""
         try:
             price = response.css('meta[property="product:price:amount"] ::attr("content")').get()
 
@@ -67,6 +81,11 @@ class PenguinBDSpider(scrapy.Spider):
             item['price'] = int(float(price))
         except ValueError as ve:
             print(ve, response.url)
-        item['in_stock'] = False if response.css('p.stock.out-of-stock ::text').get() else True
+        item['in_stock'] = 0 if response.css('p.stock.out-of-stock ::text').get() else 1
+        print(item,category)
         # yield item
-        item.save()
+        # item.save()
+        # product_item_new = item.save()
+        #
+        # # insert category object
+        # product_item_new.category.add(category_obj)

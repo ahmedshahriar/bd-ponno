@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import urllib
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -100,12 +100,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
+# https://github.com/nesdis/djongo/issues/132
+
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'bd-ponno',
-        'HOST': '127.0.0.1',
-        'PORT': 27017,
+        # 'HOST': '127.0.0.1',
+        # 'PORT': 27017,
         # 'CLIENT': {
         #    'host': 'localhost:27017',
         # }
