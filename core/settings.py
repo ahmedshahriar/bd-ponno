@@ -24,7 +24,7 @@ SECRET_KEY = 'ar+8x55lvx!fzn-w!jpvk%uwh#x6m2r4_iz$r*0gb22z-rn(2i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['bd-ponno.herokuapp.com','127.0.0.1']
 
 # custom application
 CUSTOM_APPS = ['products', 'ponnobot', 'api', ]
