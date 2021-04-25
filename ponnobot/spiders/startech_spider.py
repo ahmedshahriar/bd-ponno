@@ -88,18 +88,18 @@ class StarTechBDSpider(scrapy.Spider):
         if category_count > 1:
             category = response.css('span[itemprop="name"] ::text').get().strip()
             categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
-            tag_list.extend([slugify(category, allow_unicode=True) for category in categories] )
+            tag_list.extend([slugify(category, allow_unicode=True) for category in categories])
         else:
             category = "other"
         brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
         if brand not in tag_list:
-            tag_list.append(brand)
+            tag_list.append(slugify(brand, allow_unicode=True))
         tags = [{"name": value} for value in tag_list]
         # item['category'] = response.css('span[itemprop="name"] ::text').get()
         # item['category'] = Category.objects.first()
         category_obj = None
         try:
-            category_obj = Category.objects.get(name=category)
+            category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
             logging.info("category already exists")
         except Category.DoesNotExist:
             category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))

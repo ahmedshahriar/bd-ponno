@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 20,
 }
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 50240  # higher than the count of fields
