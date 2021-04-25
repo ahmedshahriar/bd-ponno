@@ -12,7 +12,7 @@ class StarTechBDSpider(scrapy.Spider):
     name = "startech"
     allowed_domains = ['startech.com.bd']
 
-    start_urls = ['https://startech.com.bd']
+    # start_urls = ['https://startech.com.bd']
 
     def start_requests(self):
         url = 'https://startech.com.bd'
@@ -21,7 +21,7 @@ class StarTechBDSpider(scrapy.Spider):
     def begin_parse(self, response):
         # https://www.w3schools.com/cssref/css_selectors.asp
         urls = response.css('ul.responsive-menu > li.has-child > a:first-child ::attr("href")').getall()
-        print(len(urls), urls)
+        # print(len(urls), urls)
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -68,7 +68,7 @@ class StarTechBDSpider(scrapy.Spider):
             print(ve)
 
         # different approach for pagination
-
+        #
         # next_page = response.css('ul.pagination li a ::attr("href")').getall()[-1]
         # if next_page is not None:
         #     yield response.follow(next_page, callback=self.parse)
@@ -82,14 +82,19 @@ class StarTechBDSpider(scrapy.Spider):
         def extract_with_css(query):
             return response.css(query).get(default='').strip()
 
+        tag_list = []
         # todo nested category
         category_count = len(response.css('span[itemprop="name"] ::text').getall())
         if category_count > 1:
             category = response.css('span[itemprop="name"] ::text').get().strip()
+            categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
+            tag_list.extend([slugify(category, allow_unicode=True) for category in categories] )
         else:
             category = "other"
         brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
-
+        if brand not in tag_list:
+            tag_list.append(brand)
+        tags = [{"name": value} for value in tag_list]
         # item['category'] = response.css('span[itemprop="name"] ::text').get()
         # item['category'] = Category.objects.first()
         category_obj = None
@@ -103,14 +108,14 @@ class StarTechBDSpider(scrapy.Spider):
         item = ProductItem()
         item['vendor'] = self.name
         item['name'] = extract_with_css('h1.product-name ::text')
-        item['tags'] = [{"name": brand}, {"name": "tech"}]
+        item['tags'] = tags
         item['product_url'] = response.url
         item['in_stock'] = 0 if 'Out' in response.css('td.product-status ::text').get() else 1
         item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")')
                                   .get()))
         item['image_url'] = response.css('img.main-img ::attr("src")').get()
 
-        # yield item
+        # print(item)
         product_item_new = item.save()
 
         # insert category object
