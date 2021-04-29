@@ -82,41 +82,45 @@ class StarTechBDSpider(scrapy.Spider):
         def extract_with_css(query):
             return response.css(query).get(default='').strip()
 
+        item = ProductItem()
         tag_list = []
-        # todo nested category
-        category_count = len(response.css('span[itemprop="name"] ::text').getall())
-        if category_count > 1:
-            category = response.css('span[itemprop="name"] ::text').get().strip()
-            categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
-            tag_list.extend([slugify(category, allow_unicode=True) for category in categories])
-        else:
-            category = "other"
-        brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
-        if brand not in tag_list:
-            tag_list.append(slugify(brand, allow_unicode=True))
-        tags = [{"name": value} for value in tag_list]
-        # item['category'] = response.css('span[itemprop="name"] ::text').get()
-        # item['category'] = Category.objects.first()
         category_obj = None
         try:
-            category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
-            logging.info("category already exists")
-        except Category.DoesNotExist:
-            category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
-            category_obj.save()
+            # todo nested category
+            category_count = len(response.css('span[itemprop="name"] ::text').getall())
+            if category_count > 1:
+                category = response.css('span[itemprop="name"] ::text').get().strip()
+                categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
+                tag_list.extend([slugify(category, allow_unicode=True) for category in categories])
+            else:
+                category = "other"
+            brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
+            if brand not in tag_list:
+                tag_list.append(slugify(brand, allow_unicode=True))
+            tags = [{"name": value} for value in tag_list]
+            # item['category'] = response.css('span[itemprop="name"] ::text').get()
+            # item['category'] = Category.objects.first()
+            # category_obj = None
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
 
-        item = ProductItem()
-        item['vendor'] = self.name
-        item['name'] = extract_with_css('h1.product-name ::text')
-        item['tags'] = tags
-        item['product_url'] = response.url
-        item['in_stock'] = 0 if 'Out' in response.css('td.product-status ::text').get() else 1
-        item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")')
-                                  .get()))
-        item['image_url'] = response.css('img.main-img ::attr("src")').get()
+            item['vendor'] = self.name
+            item['name'] = extract_with_css('h1.product-name ::text')
+            item['tags'] = tags
+            item['product_url'] = response.url
+            item['in_stock'] = 0 if 'Out' in response.css('td.product-status ::text').get() else 1
+            item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")')
+                                      .get()))
+            item['image_url'] = response.css('img.main-img ::attr("src")').get()
 
-        # print(item)
-        product_item_new = item.save()
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
+            product_item_new = item.save()
 
-        # insert category object
-        product_item_new.category.add(category_obj)
+            # insert category object
+            product_item_new.category.add(category_obj)

@@ -60,39 +60,39 @@ class PenguinBDSpider(scrapy.Spider):
         """
         tag_list = []
         item = ProductItem()
-
-        item['vendor'] = self.name
-        item['product_url'] = response.url
-        item['name'] = response.css('div.summary-inner h1[itemprop="name"] ::text').get().strip()
-        item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
-        brand = response.css('div.woodmart-product-brand a img ::attr("title")').get()
-        categories = response.css('nav.woocommerce-breadcrumb a.breadcrumb-link ::text').getall()
-        if len(categories) > 1:
-            tag_list.extend([slugify(category, allow_unicode=True) for category in categories[2:]])
-
         category_obj = None
         try:
-            category_obj = Category.objects.get(slug=slugify(categories[1], allow_unicode=True))
-            logging.info("category already exists")
-        except Category.DoesNotExist:
-            category_obj = Category(name=categories[1], slug=slugify(categories[1], allow_unicode=True))
-            category_obj.save()
-        if brand:
-            tag_list.append(slugify(brand, allow_unicode=True) if brand else "")
-        item['tags'] = [{"name": value} for value in tag_list]
-        try:
-            price = response.css('meta[property="product:price:amount"] ::attr("content")').get()
+            item['vendor'] = self.name
+            item['product_url'] = response.url
+            item['name'] = response.css('div.summary-inner h1[itemprop="name"] ::text').get().strip()
+            item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get()
+            brand = response.css('div.woodmart-product-brand a img ::attr("title")').get()
+            categories = response.css('nav.woocommerce-breadcrumb a.breadcrumb-link ::text').getall()
+            if len(categories) > 1:
+                tag_list.extend([slugify(category, allow_unicode=True) for category in categories[2:]])
 
-            if price is None:
-                price = response.css('div.summary-inner p.price bdi::text').getall()[-1].replace(',', '')
-            item['price'] = int(float(price))
-        except ValueError as ve:
-            print(ve, response.url)
-        item['in_stock'] = 0 if response.css('p.stock.out-of-stock ::text').get() else 1
-        # print(item, categories[1])
-        # yield item
-        item.save()
-        product_item_new = item.save()
+            try:
+                category_obj = Category.objects.get(slug=slugify(categories[1], allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=categories[1], slug=slugify(categories[1], allow_unicode=True))
+                category_obj.save()
+            if brand:
+                tag_list.append(slugify(brand, allow_unicode=True) if brand else "")
+            item['tags'] = [{"name": value} for value in tag_list]
+            try:
+                price = response.css('meta[property="product:price:amount"] ::attr("content")').get()
 
-        # insert category object
-        product_item_new.category.add(category_obj)
+                if price is None:
+                    price = response.css('div.summary-inner p.price bdi::text').getall()[-1].replace(',', '')
+                item['price'] = int(float(price))
+            except ValueError as ve:
+                print(ve, response.url)
+            item['in_stock'] = 0 if response.css('p.stock.out-of-stock ::text').get() else 1
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)

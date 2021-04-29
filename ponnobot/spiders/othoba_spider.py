@@ -61,7 +61,7 @@ class OthobaSpider(scrapy.Spider):
         """
         tag_list = []
         item = ProductItem()
-
+        category_obj = None
         try:
             item['vendor'] = self.name
             item['product_url'] = response.url
@@ -75,7 +75,7 @@ class OthobaSpider(scrapy.Spider):
             categories = response.css('div.breadcrumb a span ::text').getall()[1:]
 
             try:
-                Category.objects.get(slug=slugify(categories[1], allow_unicode=True))
+                category_obj = Category.objects.get(slug=slugify(categories[1], allow_unicode=True))
                 logging.info("category already exists")
             except Category.DoesNotExist:
                 category_obj = Category(name=categories[1], slug=slugify(categories[1], allow_unicode=True))
@@ -87,5 +87,7 @@ class OthobaSpider(scrapy.Spider):
         except Exception as e:
             print(e, response.url)
         if item['name'] is not None:
-            item.save()
-            # print(item, '###\n', category_obj)
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)
