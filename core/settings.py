@@ -14,12 +14,11 @@ import urllib.parse
 from pathlib import Path
 
 import django_heroku
-from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -30,7 +29,7 @@ SECRET_KEY = 'ar+8x55lvx!fzn-w!jpvk%uwh#x6m2r4_iz$r*0gb22z-rn(2i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['bd-ponno.herokuapp.com','127.0.0.1']
 
 # custom application
 CUSTOM_APPS = ['products', 'ponnobot', 'api', ]
@@ -113,7 +112,7 @@ DATABASES = {
         'ENGINE': 'djongo',
         'NAME': str(os.environ.get('DB_NAME')),
         'CLIENT': {
-            'host': 'mongodb+srv://'+str(os.environ.get('DB_USERNAME'))+':'+urllib.parse.quote_plus(str(os.environ.get('DB_PASSWORD'))) +'@cluster0.xcc5n.mongodb.net/test?retryWrites=true&w=majority',
+            'host': str(os.environ.get('MONGODB_URL')),
             'authMechanism': 'SCRAM-SHA-1'
         }
     }
