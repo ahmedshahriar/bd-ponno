@@ -4,6 +4,8 @@
 .DS_Store
 # Ignore Django Migrations in Development if you are working on team
 
+# ignore static folder
+static
 # Only for Development only
 **/migrations/**
 !**/migrations

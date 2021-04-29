@@ -9,22 +9,26 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-import urllib
+import os
+import urllib.parse
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ar+8x55lvx!fzn-w!jpvk%uwh#x6m2r4_iz$r*0gb22z-rn(2i'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['bd-ponno.herokuapp.com','127.0.0.1']
+ALLOWED_HOSTS = ['bd-ponno.herokuapp.com', '127.0.0.1']
 
 # custom application
 CUSTOM_APPS = ['products', 'ponnobot', 'api', ]
@@ -101,16 +105,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 # https://github.com/nesdis/djongo/issues/132
-
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'bd-ponno',
-        # 'HOST': '127.0.0.1',
-        # 'PORT': 27017,
-        # 'CLIENT': {
-        #    'host': 'localhost:27017',
-        # }
+        'NAME': str(os.environ.get('DB_NAME')),
+        'CLIENT': {
+            'host': 'mongodb+srv://'+str(os.environ.get('DB_USERNAME'))+':'+urllib.parse.quote_plus(str(os.environ.get('DB_PASSWORD'))) +'@cluster0.xcc5n.mongodb.net/test?retryWrites=true&w=majority',
+            'authMechanism': 'SCRAM-SHA-1'
+        }
     }
 }
 
@@ -149,6 +151,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -159,4 +162,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 50240  # higher than the count of fields
+# DATA_UPLOAD_MAX_NUMBER_FIELDS = 50240  # higher than the count of fields
+
+# SSL config
+# SECURE_SSL_REDIRECT = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_HSTS_SECONDS = 518400
+# SESSION_COOKIE_SECURE = True
+# SECURE_HSTS_PRELOAD = True
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
