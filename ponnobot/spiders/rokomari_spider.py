@@ -1,23 +1,28 @@
+import logging
+
 import scrapy
+from django.utils.text import slugify
 
 from ponnobot.items import ProductItem
+from products.models import Category
 
 
 class RokomariBookSpider(scrapy.Spider):
     name = "rokomari"
     allowed_domains = ['rokomari.com']
-    start_urls = ['https://www.rokomari.com']
+    # start_urls = ['https://www.rokomari.com']
 
-    # def start_requests(self):
-    #     url = 'https://www.rokomari.com/book/categories'
-    #     yield scrapy.Request(url=url, callback=self.begin_parse)
-    #
-    # def begin_parse(self, response):
-    #     urls = response.css('div.pFIrstCatCaroItem a ::attr("href")').getall()
-    #     print(len(urls), urls)
-    #     for url in urls[1:]:
-    #         url = 'https://www.rokomari.com' + str(url)
-    #         yield scrapy.Request(url=url, callback=self.parse)
+    def start_requests(self):
+        url = 'https://www.rokomari.com/book/categories'
+        yield scrapy.Request(url=url, callback=self.begin_parse)
+
+    def begin_parse(self, response):
+        urls = response.css('div.pFIrstCatCaroItem a ::attr("href")').getall()
+
+        print(len(urls), urls)
+        for url in urls[:1]:
+            url = 'https://www.rokomari.com' + str(url)
+            yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response, **kwargs):
         """
@@ -37,7 +42,7 @@ class RokomariBookSpider(scrapy.Spider):
         """ pagination """
         try:
             pagination_links = response.css('div.pagination a ::attr("href")').getall()[-1]
-            yield response.follow(pagination_links, self.parse)
+            yield response.follow_all(pagination_links, self.parse)
         except IndexError as ie:
             # logging.info(ie, logging.WARN)
             print(ie)
@@ -56,21 +61,39 @@ class RokomariBookSpider(scrapy.Spider):
         tag_list = []
         category_obj = None
 
-        item['vendor'] = self.name
-        item['product_url'] = response.url
-        item['name'] = response.css('div.details-book-main-info__header h1 ::text').get().strip()
-        item['price'] = int(
-            float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
-        item['in_stock'] = 0 if 'in' in response.css(
-            'meta[property="product:availability"] ::attr("content")').get().strip().lower() else 1
-        item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get().strip()
-        publisher = response.css('td.publisher-link a ::text').get().strip()
-        # todo check for brand name in bangla
-        # response.css('meta[property="product:brand"] ::attr("content")').get().strip()
 
-        tag_list.append(publisher)
-        category = response.css('div.details-book-info__content-category a.ml-2 ::text').get().strip()
-        author_name = response.css('p.details-book-info__content-author a ::text').get().strip()
-        tag_list.append(author_name)
-        print(category, item, tag_list)
+        try:
+            item['vendor'] = self.name
+            item['product_url'] = response.url
+            item['name'] = response.css('div.details-book-main-info__header h1 ::text').get().strip()
+            item['price'] = int(
+                float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
+            item['in_stock'] = 0 if 'in' in response.css(
+                'meta[property="product:availability"] ::attr("content")').get().strip().lower() else 1
+            item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get().strip()
+            publisher = response.css('td.publisher-link a ::text').get().strip()
+            # todo check for brand name in bangla
+            # response.css('meta[property="product:brand"] ::attr("content")').get().strip()
+
+            tag_list.append(publisher)
+            book_category = response.css('div.details-book-info__content-category a.ml-2 ::text').get().strip()
+            category = 'Book'
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
+
+            author_name = response.css('p.details-book-info__content-author a ::text').get().strip()
+            tag_list.extend([author_name, book_category])
+            item['tags'] = tag_list
+            print(category, item, tag_list)
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)
 

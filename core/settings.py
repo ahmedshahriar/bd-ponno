@@ -109,10 +109,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': str(os.environ.get('DB_NAME')),
-        'CLIENT': {
-            'host': 'mongodb+srv://'+str(os.environ.get('DB_USERNAME'))+':'+urllib.parse.quote_plus(str(os.environ.get('DB_PASSWORD'))) +'@cluster0.xcc5n.mongodb.net/test?retryWrites=true&w=majority',
-            'authMechanism': 'SCRAM-SHA-1'
-        }
+        # 'CLIENT': {
+        #     'host': 'mongodb+srv://'+str(os.environ.get('DB_USERNAME'))+':'+urllib.parse.quote_plus(str(os.environ.get('DB_PASSWORD'))) +'@cluster0.xcc5n.mongodb.net/test?retryWrites=true&w=majority',
+        #     'authMechanism': 'SCRAM-SHA-1'
+        # }
     }
 }
 
