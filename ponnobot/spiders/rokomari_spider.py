@@ -10,6 +10,7 @@ from products.models import Category
 class RokomariBookSpider(scrapy.Spider):
     name = "rokomari"
     allowed_domains = ['rokomari.com']
+
     # start_urls = ['https://www.rokomari.com']
 
     def start_requests(self):
@@ -19,8 +20,8 @@ class RokomariBookSpider(scrapy.Spider):
     def begin_parse(self, response):
         urls = response.css('div.pFIrstCatCaroItem a ::attr("href")').getall()
 
-        print(len(urls), urls)
-        for url in urls[:1]:
+        # print(len(urls), urls)
+        for url in urls:
             url = 'https://www.rokomari.com' + str(url)
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -31,13 +32,13 @@ class RokomariBookSpider(scrapy.Spider):
         """
         """ parse products """
 
-        # product_page_links = response.css('div.book-list-wrapper div.home-details-btn-wrapper  a ')
-        # yield from response.follow_all(product_page_links, self.parse_product)
+        product_page_links = response.css('div.book-list-wrapper div.home-details-btn-wrapper  a ')
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         """ parse test for a single product """
-        single_product_url = 'https://www.rokomari.com/book/132098/a-mind-for-numbers'
-        yield response.follow(single_product_url,
-                              callback=self.parse_product)
+        # single_product_url = 'https://www.rokomari.com/book/132098/a-mind-for-numbers'
+        # yield response.follow(single_product_url,
+        #                       callback=self.parse_product)
 
         """ pagination """
         try:
@@ -61,7 +62,6 @@ class RokomariBookSpider(scrapy.Spider):
         tag_list = []
         category_obj = None
 
-
         try:
             item['vendor'] = self.name
             item['product_url'] = response.url
@@ -74,9 +74,8 @@ class RokomariBookSpider(scrapy.Spider):
             publisher = response.css('td.publisher-link a ::text').get().strip()
             # todo check for brand name in bangla
             # response.css('meta[property="product:brand"] ::attr("content")').get().strip()
-
-            tag_list.append(publisher)
             book_category = response.css('div.details-book-info__content-category a.ml-2 ::text').get().strip()
+
             category = 'Book'
             try:
                 category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
@@ -86,14 +85,14 @@ class RokomariBookSpider(scrapy.Spider):
                 category_obj.save()
 
             author_name = response.css('p.details-book-info__content-author a ::text').get().strip()
-            tag_list.extend([author_name, book_category])
-            item['tags'] = tag_list
-            print(category, item, tag_list)
+            tag_list.extend([publisher, author_name, book_category])
+            item['tags'] = [{"name": value} for value in tag_list]
+
         except Exception as e:
             print(e, response.url)
         if item['name'] is not None:
+            print(category_obj, item, tag_list)
             product_item_new = item.save()
 
             # insert category object
             product_item_new.category.add(category_obj)
-
