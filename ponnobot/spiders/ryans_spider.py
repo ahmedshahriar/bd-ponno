@@ -1,13 +1,17 @@
+import logging
 import unicodedata
 
 import scrapy
+from django.utils.text import slugify
 
 from ponnobot.items import ProductItem
+from products.models import Category
 
 
 class RyanComputersSpider(scrapy.Spider):
     name = "ryans"
     allowed_domains = ['ryanscomputers.com']
+
     # start_urls = ['https://www.ryanscomputers.com/category/notebook-all-notebook']
 
     def start_requests(self):
@@ -19,7 +23,7 @@ class RyanComputersSpider(scrapy.Spider):
         # todo last section to be added manually
         urls = response.css('ul.nav a.nav-link ::attr("href")').getall()
         # print(len(urls),urls)
-        for url in urls:
+        for url in urls[:1]:
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response, **kwargs):
@@ -57,18 +61,44 @@ class RyanComputersSpider(scrapy.Spider):
         :return: product details dictionary
         """
         item = ProductItem()
-        item['vendor'] = self.name
-        item['name'] = response.css('h1.title ::text').get()
-        item['product_url'] = response.url
+        tag_list = []
+        category_obj = None
+        try:
+            item['vendor'] = self.name
+            item['name'] = response.css('h1.title ::text').get()
+            item['product_url'] = response.url
 
-        # product_details['category'] = response.css('ul.breadcrumb-menu li a ::text').get()
+            category = response.css('ul.breadcrumb-menu li a ::text').get()
+            if 'All' in category:
+                category = category.replace('All', '')
 
-        # product_details['old_price'] = unicodedata.normalize("NFKD",
-        #                                                      response.css('span.old-price ::text').get().strip())
-        special_price = unicodedata.normalize("NFKD", response.css(
-            'div.special-price span.price ::text').get().strip().replace(',', ''))
-        item['price'] = int(float(special_price))
-        item['image_url'] = response.css('meta[property="og:image"] ::attr("content")')\
-            .get().strip().replace('thumbnail', 'main')
-        item['in_stock'] = False if response.css('div.out-of-stock-wrapper') else True
-        item.save()
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
+
+            special_price = unicodedata.normalize("NFKD", response.css(
+                'div.special-price span.price ::text').get().strip().replace(',', ''))
+            item['price'] = int(float(special_price))
+            item['image_url'] = response.css('meta[property="og:image"] ::attr("content")') \
+                .get().strip().replace('thumbnail', 'main')
+            item['in_stock'] = 0 if response.css('div.out-of-stock-wrapper') else 1
+
+
+            features_keys= response.css(
+                'div#information div.specs-wrapper div.specs-item-wrapper div.attribute_set ::text').getall()
+            features_values = response.css('div#information div.specs-wrapper div.specs-item-wrapper div.col-md-10 ::text').getall()
+            features_dict = dict(zip(features_keys, features_values))
+            item['tags'] = [{"name": value} for value in {value for key, value in features_dict.items() if 'brand' in key.lower()} ]
+
+        except Exception as e:
+            print(e, response.url)
+
+        if item['name'] is not None:
+            print(category_obj, item, tag_list)
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)

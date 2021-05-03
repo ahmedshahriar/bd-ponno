@@ -8,13 +8,16 @@ from products.models import Product
 
 
 # Create your views here.
+# todo add dynamic search
+# https://betterprogramming.pub/how-to-make-search-fields-dynamic-in-django-rest-framework-72922bfa1543
+
 class ProductFilter(filters.FilterSet):
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
 
     class Meta:
         model = Product
-        fields = ['in_stock', 'vendor', 'min_price', 'max_price']
+        fields = ['category', 'in_stock', 'vendor', 'min_price', 'max_price']
 
 
 class ProductListView(generics.ListAPIView):
@@ -28,3 +31,5 @@ class ProductListView(generics.ListAPIView):
 
     search_fields = ['name']
     pagination_class = PageNumberPagination
+
+

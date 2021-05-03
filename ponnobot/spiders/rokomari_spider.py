@@ -68,8 +68,8 @@ class RokomariBookSpider(scrapy.Spider):
             item['name'] = response.css('div.details-book-main-info__header h1 ::text').get().strip()
             item['price'] = int(
                 float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
-            item['in_stock'] = 0 if 'in' in response.css(
-                'meta[property="product:availability"] ::attr("content")').get().strip().lower() else 1
+            item['in_stock'] = 1 if 'in' in response.css(
+                'meta[property="product:availability"] ::attr("content")').get().strip().lower() else 0
             item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get().strip()
             publisher = response.css('td.publisher-link a ::text').get().strip()
             # todo check for brand name in bangla
