@@ -1,4 +1,5 @@
 import logging
+import time
 
 import scrapy
 from django.utils.text import slugify
@@ -11,20 +12,30 @@ class MKElectronicsSpider(scrapy.Spider):
     name = "mke"
     allowed_domains = ['mke.com.bd']
 
-    start_urls = ['https://www.mke.com.bd/televisions?p=1',
-                  'https://www.mke.com.bd/air-conditioners',
-                  'https://www.mke.com.bd/refrigerators-freezers',
-                  'https://www.mke.com.bd/cooling-heating-appliances',
-                  'https://www.mke.com.bd/wash-dry-cleaning-appliances',
-                  'https://www.mke.com.bd/kitchen-appliances',
-                  'https://www.mke.com.bd/audio-video',
-                  'https://www.mke.com.bd/personal-care-appliances',
-                  'https://www.mke.com.bd/water-treatment-appliances',
-                  'https://www.mke.com.bd/small-household-appliances',
-                  'https://www.mke.com.bd/accessories'
-                  ]
+    # start_urls = ['https://www.mke.com.bd/televisions?p=1',
+    #               'https://www.mke.com.bd/air-conditioners',
+    #               'https://www.mke.com.bd/refrigerators-freezers',
+    #               'https://www.mke.com.bd/cooling-heating-appliances',
+    #               'https://www.mke.com.bd/wash-dry-cleaning-appliances',
+    #               'https://www.mke.com.bd/kitchen-appliances',
+    #               'https://www.mke.com.bd/audio-video',
+    #               'https://www.mke.com.bd/personal-care-appliances',
+    #               'https://www.mke.com.bd/water-treatment-appliances',
+    #               'https://www.mke.com.bd/small-household-appliances',
+    #               'https://www.mke.com.bd/accessories'
+    #               ]
 
     # start_urls = ['https://www.mke.com.bd/televisions']
+
+    def start_requests(self):
+        url = 'https://www.mke.com.bd'
+        yield scrapy.Request(url=url, callback=self.begin_parse)
+
+    def begin_parse(self, response):
+        urls = response.css('ul.groupmenu  ul.cat-tree li.item:not(.parent) a.menu-link ::attr("href")').getall()
+        # print(len(urls), urls)
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response, **kwargs):
         """
@@ -35,25 +46,31 @@ class MKElectronicsSpider(scrapy.Spider):
         # global link
 
         """ parse products """
-        # product_page_links = response.css('a.product-item-link ')
-        # yield from response.follow_all(product_page_links, self.parse_product)
+        product_page_links = response.css('a.product-item-link ')
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         """ parse test for a single product """
-        single_product_url = 'https://www.mke.com.bd/samsung-ua78ks9000k-4k-curved-smart-tv'
-        yield response.follow(single_product_url, callback=self.parse_product)
+        # single_product_url = 'https://www.mke.com.bd/samsung-ua78ks9000k-4k-curved-smart-tv'
+        # single_product_url = 'https://www.mke.com.bd/sharp-8kg-top-load-washing-machine-es818x'
+        # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
-        # try:
-        #     pagination_link = response.css('a[title="Next"] ::attr("href")').get()
-        #     yield response.follow(pagination_link, self.parse)
-        # except IndexError as ie:
-        #     # logging.info(ie, logging.WARN)
-        #     print(ie)
-        # except TypeError as te:
-        #     # logging.info(te, logging.WARN)
-        #     print(te)
-        # except ValueError as ve:
-        #     print(ve)
+        try:
+            pagination_link = response.css('a[title="Next"] ::attr("href")').get()
+            yield response.follow(pagination_link, self.parse)
+        except IndexError as ie:
+            # logging.info(ie, logging.WARN)
+            print(ie)
+        except TypeError as te:
+            # logging.info(te, logging.WARN)
+            print(te)
+        except ValueError as ve:
+            print(ve)
+
+        # next_page = response.css('a[title="Next"] ::attr("href")').get()
+        # if next_page is not None:
+        #     time.sleep(0.5)
+        #     yield response.follow(next_page, callback=self.parse)
 
     def parse_product(self, response):
         item = ProductItem()
@@ -66,23 +83,25 @@ class MKElectronicsSpider(scrapy.Spider):
             item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content") ').get()))
             item['in_stock'] = 1 if 'in' in response.css(
                 'meta[property="product:availability"] ::attr("content") ').get().lower() else 0
+            # todo more tags : check "<script>gtag('event','view_item',......}]});</script>" section
+
             category = response.css('div.breadcrumbs ul.items li.item a ::text').getall()[-1]
             brand = response.css('meta[property="product:brand"] ::attr("content") ').get()
             color = response.css('meta[property="product:color"] ::attr("content") ').get()
             product_category = response.css('meta[property="product:category"] ::attr("content") ').get()
             item['tags'] = [{"name": value} for value in [brand, product_category, color] if value is not None]
 
-            try:
-                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
-                logging.info("category already exists")
-            except Category.DoesNotExist:
-                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
-                category_obj.save()
+            # try:
+            #     category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+            #     logging.info("category already exists")
+            # except Category.DoesNotExist:
+            #     category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+            #     category_obj.save()
         except Exception as e:
             print(e, response.url)
         if item['name'] is not None:
-            print(category_obj, item)
-            product_item_new = item.save()
-
-            # insert category object
-            product_item_new.category.add(category_obj)
+            print(category, item)
+            # product_item_new = item.save()
+            #
+            # # insert category object
+            # product_item_new.category.add(category_obj)

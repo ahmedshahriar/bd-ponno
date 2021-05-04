@@ -32,7 +32,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 TELNETCONSOLE_ENABLED = False
@@ -54,7 +54,7 @@ TELNETCONSOLE_ENABLED = False
 DOWNLOADER_MIDDLEWARES = {
    'ponnobot.middlewares.PonnobotDownloaderMiddleware': 543,
 }
-
+#
 # DOWNLOADER_MIDDLEWARES_BASE = {
 #     'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware': 100,
 #     'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware': 300,
