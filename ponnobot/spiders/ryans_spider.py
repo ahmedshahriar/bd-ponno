@@ -61,8 +61,8 @@ class RyanComputersSpider(scrapy.Spider):
         :return: product details dictionary
         """
         item = ProductItem()
-        tag_list = []
         category_obj = None
+
         try:
             item['vendor'] = self.name
             item['name'] = response.css('h1.title ::text').get()
@@ -91,13 +91,14 @@ class RyanComputersSpider(scrapy.Spider):
                 'div#information div.specs-wrapper div.specs-item-wrapper div.attribute_set ::text').getall()
             features_values = response.css('div#information div.specs-wrapper div.specs-item-wrapper div.col-md-10 ::text').getall()
             features_dict = dict(zip(features_keys, features_values))
-            item['tags'] = [{"name": value} for value in {value for key, value in features_dict.items() if 'brand' in key.lower()} ]
+
+            item['tags'] = [{"name": value} for value in {value for key, value in features_dict.items() if 'brand' in key.lower() } ]
 
         except Exception as e:
             print(e, response.url)
 
         if item['name'] is not None:
-            print(category_obj, item, tag_list)
+            print(category_obj, item)
             product_item_new = item.save()
 
             # insert category object

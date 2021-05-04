@@ -15,12 +15,13 @@ NEWSPIDER_MODULE = 'ponnobot.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1'
+# USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'
 
 # Obey robots.txt rules
 # ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+# CONCURRENT_REQUESTS = 1
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -31,7 +32,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+# COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 TELNETCONSOLE_ENABLED = False
@@ -50,9 +51,26 @@ TELNETCONSOLE_ENABLED = False
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'ponnobot.middlewares.PonnobotDownloaderMiddleware': 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+   'ponnobot.middlewares.PonnobotDownloaderMiddleware': 543,
+}
+
+# DOWNLOADER_MIDDLEWARES_BASE = {
+#     'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware': 100,
+#     'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware': 300,
+#     'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware': 350,
+#     'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware': 400,
+#     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 500,
+#     'scrapy.downloadermiddlewares.retry.RetryMiddleware': 550,
+#     'scrapy.downloadermiddlewares.ajaxcrawl.AjaxCrawlMiddleware': 560,
+#     'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware': 580,
+#     'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 590,
+#     'scrapy.downloadermiddlewares.redirect.RedirectMiddleware': 600,
+#     'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': 700,
+#     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 750,
+#     'scrapy.downloadermiddlewares.stats.DownloaderStats': 850,
+#     'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware': 900,
+# }
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
