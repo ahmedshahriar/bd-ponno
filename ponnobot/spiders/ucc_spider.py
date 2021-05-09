@@ -1,6 +1,10 @@
+import logging
+
 import scrapy
+from django.utils.text import slugify
 
 from ponnobot.items import ProductItem
+from products.models import Category
 
 
 class UCCSpider(scrapy.Spider):
@@ -18,7 +22,7 @@ class UCCSpider(scrapy.Spider):
         urls = response.css('div.block-vmagicmenu-content ul.nav-desktop li.level1.category-item > a:first-child '
                             '::attr("href")').getall()
         # print(len(urls),urls)
-        for url in urls[:1]:
+        for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
@@ -26,10 +30,17 @@ class UCCSpider(scrapy.Spider):
         :param response:
         :return: products and pagination callback
         """
-
+        categories = response.css('div.breadcrumbs div.container ul.items li ::text').getall()[1:]
+        tag_list = []
+        if len(categories) > 1:
+            tag_list = [slugify(value, allow_unicode=True) for value in categories[1:]]
+        if 'others' in tag_list:  # filter 'other' tag
+            tag_list.remove('others')
         """ parse products """
         product_page_links = response.css('div.product-hover  a')
-        yield from response.follow_all(product_page_links, self.parse_product)
+        yield from response.follow_all(product_page_links, self.parse_product, meta={"category": categories[0].strip(),
+                                                                                     "tag_list": [{"name": value} for
+                                                                                                  value in tag_list]})
 
         """ parse test for a single product """
         # single_product_url = 'https://ucc-bd.com/msi-meg-z490-unify-motherboard.html'
@@ -52,16 +63,41 @@ class UCCSpider(scrapy.Spider):
             print(ve)
 
     def parse_product(self, response):
+        category = response.request.meta['category']
+        tag_list = response.request.meta['tag_list']
+
         item = ProductItem()
-        item['vendor'] = self.name
-        item['name'] = response.css('span[itemprop="name"] ::text').get()
-        item['product_url'] = response.url
+        category_obj = None
+        try:
+            item['vendor'] = self.name
+            item['name'] = response.css('span[itemprop="name"] ::text').get()
+            item['product_url'] = response.url
+            item['tags'] = tag_list
+            # product_details['category'] = response.css('ul.items li.item.category a ::text').get()
+            try:
+                item['in_stock'] = 1 if 'In' in response.css(
+                    'div[title="Availability"] span ::text').get().strip() else 0
+            except Exception as e:
+                print(e, response.url)
+            try:
+                item['price'] = int(
+                    float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
+            except Exception as e:
+                print(e, response.url)
 
-        # product_details['category'] = response.css('ul.items li.item.category a ::text').get()
+            item['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
 
-        item['in_stock'] = 1 if 'In' in response.css(
-            'div[title="Availability"] span ::text').get().strip() else 0
-        item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
-        item['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
-        yield item
-        # item.save()
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
+            print(item, category)
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)

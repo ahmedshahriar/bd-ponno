@@ -72,7 +72,6 @@ class PickabooSpider(scrapy.Spider):
         :return: product details dictionary
         """
         category = response.request.meta['category']
-        # print('################', category)
         tag_list = response.request.meta['tag_list']
         item = ProductItem()
         category_obj = None
