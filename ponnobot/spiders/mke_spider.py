@@ -91,17 +91,17 @@ class MKElectronicsSpider(scrapy.Spider):
             product_category = response.css('meta[property="product:category"] ::attr("content") ').get()
             item['tags'] = [{"name": value} for value in [brand, product_category, color] if value is not None]
 
-            # try:
-            #     category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
-            #     logging.info("category already exists")
-            # except Category.DoesNotExist:
-            #     category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
-            #     category_obj.save()
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
         except Exception as e:
             print(e, response.url)
         if item['name'] is not None:
             print(category, item)
-            # product_item_new = item.save()
-            #
-            # # insert category object
-            # product_item_new.category.add(category_obj)
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)

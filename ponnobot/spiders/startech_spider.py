@@ -91,7 +91,7 @@ class StarTechBDSpider(scrapy.Spider):
             if category_count > 1:
                 category = response.css('span[itemprop="name"] ::text').get().strip()
                 categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
-                tag_list.extend([slugify(category, allow_unicode=True) for category in categories])
+                tag_list.extend([slugify(category, allow_unicode=True) for category in categories if 'All' not in category])
             else:
                 category = "other"
             brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
