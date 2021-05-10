@@ -52,6 +52,7 @@ class StarTechBDSpider(scrapy.Spider):
         # single_product_url = 'https://www.startech.com.bd/chuwi-hi10-air-touch-tablet-and-notebook'
         # single_product_url ='https://www.startech.com.bd/huawei-matebook-d15-laptop'  # out of stock
         # single_product_url = 'https://www.startech.com.bd/optoma-s341'
+        # single_product_url = 'https://www.startech.com.bd/kwg-vela-m1-pc-case'
         # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
@@ -92,6 +93,9 @@ class StarTechBDSpider(scrapy.Spider):
                 category = response.css('span[itemprop="name"] ::text').get().strip()
                 categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
                 tag_list.extend([slugify(category, allow_unicode=True) for category in categories if 'All' not in category])
+                if 'component' in category.lower():
+                    category = category.replace('Component','PC Components').title().strip()
+
             else:
                 category = "other"
             brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
@@ -100,7 +104,7 @@ class StarTechBDSpider(scrapy.Spider):
             tags = [{"name": value} for value in tag_list]
             # item['category'] = response.css('span[itemprop="name"] ::text').get()
             # item['category'] = Category.objects.first()
-            # category_obj = None
+
             try:
                 category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
                 logging.info("category already exists")
@@ -121,6 +125,7 @@ class StarTechBDSpider(scrapy.Spider):
             print(e, response.url)
         if item['name'] is not None:
             product_item_new = item.save()
+            # print(item, category)
 
             # insert category object
             product_item_new.category.add(category_obj)

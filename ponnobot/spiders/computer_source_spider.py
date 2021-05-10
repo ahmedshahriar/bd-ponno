@@ -33,7 +33,7 @@ class ComputerSourceSpider(scrapy.Spider):
         """ parse products """
         product_page_links = response.css('div.single_product div.product_thumb a')
         # product_page_links = [
-        #     'https://computersourcebd.com/product/1238/dell-vostro-14-3401-core-i3-10th-gen-14-inch-hd-laptop'
+            # 'https://computersourcebd.com/product/1238/dell-vostro-14-3401-core-i3-10th-gen-14-inch-hd-laptop'
         # # 'https://computersourcebd.com/product/206/apacer-ah25b-16gb-usb-31-pen-drive-',
         # # 'https://computersourcebd.com/product/221/apacer-sdhc-uhs-1-16gb-class10-micro-sd-card',
         # # 'https://computersourcebd.com/product/234/epson-l130-ink-tank-printer'
@@ -56,6 +56,8 @@ class ComputerSourceSpider(scrapy.Spider):
             category = response.css('div.breadcrumb_content div.breadcrumb_header a ::text').getall()[-1]
             if 'brand' in category.lower():
                 category = category.replace('Brand','').title().strip()
+            if 'laptop' in category.lower():
+                category = category.replace('Laptops', 'Laptop').title().strip()
             try:
                 price = [re.findall(r'-?\d+\.?\d*', p.strip().replace(',', ''))[0] for p in
                          response.css('span.new_price ::text').getall()][-1]
