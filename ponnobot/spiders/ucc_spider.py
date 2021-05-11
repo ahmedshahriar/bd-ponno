@@ -25,8 +25,9 @@ class UCCSpider(scrapy.Spider):
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         """
+        :param **kwargs:
         :param response:
         :return: products and pagination callback
         """
@@ -66,6 +67,11 @@ class UCCSpider(scrapy.Spider):
         category = response.request.meta['category']
         tag_list = response.request.meta['tag_list']
 
+        if 'laptop' in category.lower():
+            category = category.replace('Laptops', 'Laptop').title().strip()
+        if 'monitor' in category.lower():
+            category = category.replace('Monitors', 'Monitor').title().strip()
+
         item = ProductItem()
         category_obj = None
         try:
@@ -86,6 +92,9 @@ class UCCSpider(scrapy.Spider):
                 print(e, response.url)
 
             item['image_url'] = response.css('img.lazyload.gallery-placeholder__image ::attr("data-src")').get()
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
 
             try:
                 category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
@@ -93,9 +102,7 @@ class UCCSpider(scrapy.Spider):
             except Category.DoesNotExist:
                 category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
                 category_obj.save()
-        except Exception as e:
-            print(e, response.url)
-        if item['name'] is not None:
+
             print(item, category)
             product_item_new = item.save()
 

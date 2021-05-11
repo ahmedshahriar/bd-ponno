@@ -53,6 +53,7 @@ class StarTechBDSpider(scrapy.Spider):
         # single_product_url ='https://www.startech.com.bd/huawei-matebook-d15-laptop'  # out of stock
         # single_product_url = 'https://www.startech.com.bd/optoma-s341'
         # single_product_url = 'https://www.startech.com.bd/kwg-vela-m1-pc-case'
+        # single_product_url = 'https://www.startech.com.bd/a4tech-bloody-gc-330-gaming-chair'
         # yield response.follow(single_product_url, callback=self.parse_product)
 
         """ pagination """
@@ -94,7 +95,9 @@ class StarTechBDSpider(scrapy.Spider):
                 categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
                 tag_list.extend([slugify(category, allow_unicode=True) for category in categories if 'All' not in category])
                 if 'component' in category.lower():
-                    category = category.replace('Component','PC Components').title().strip()
+                    category = category.replace('Component', 'PC Components').strip()
+                if 'gaming' in category.lower():
+                    category = category.replace('Gaming', 'Gaming Accessories').strip()
 
             else:
                 category = "other"

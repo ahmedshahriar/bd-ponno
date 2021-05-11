@@ -33,7 +33,9 @@ class ComputerSourceSpider(scrapy.Spider):
         """ parse products """
         product_page_links = response.css('div.single_product div.product_thumb a')
         # product_page_links = [
-            # 'https://computersourcebd.com/product/1238/dell-vostro-14-3401-core-i3-10th-gen-14-inch-hd-laptop'
+        # 'https://computersourcebd.com/product/330/apple-imac-5k-27-inch-mnea2-35ghz-quad-core-intel-core-i5-2017'
+        #     'https://computersourcebd.com/product/1238/dell-vostro-14-3401-core-i3-10th-gen-14-inch-hd-laptop'
+        # 'https://computersourcebd.com/product/1090/western-digital-2tb-my-passport-portable-hdd'
         # # 'https://computersourcebd.com/product/206/apacer-ah25b-16gb-usb-31-pen-drive-',
         # # 'https://computersourcebd.com/product/221/apacer-sdhc-uhs-1-16gb-class10-micro-sd-card',
         # # 'https://computersourcebd.com/product/234/epson-l130-ink-tank-printer'
@@ -55,9 +57,11 @@ class ComputerSourceSpider(scrapy.Spider):
             item['tags'] = tag_list
             category = response.css('div.breadcrumb_content div.breadcrumb_header a ::text').getall()[-1]
             if 'brand' in category.lower():
-                category = category.replace('Brand','').title().strip()
+                category = category.replace('Brand','').strip()
             if 'laptop' in category.lower():
                 category = category.replace('Laptops', 'Laptop').title().strip()
+            if 'external hdd' in category.lower():
+                category = category.replace('External HDD', 'External SSD/HDD').strip()
             try:
                 price = [re.findall(r'-?\d+\.?\d*', p.strip().replace(',', ''))[0] for p in
                          response.css('span.new_price ::text').getall()][-1]
@@ -66,13 +70,6 @@ class ComputerSourceSpider(scrapy.Spider):
                 print(ve, response.url)
             except IndexError as ie:
                 print(ie, response.url)
-
-            try:
-                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
-                logging.info("category already exists")
-            except Category.DoesNotExist:
-                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
-                category_obj.save()
 
             try:
                 stock_status = response.css('div.product_d_right > p:last-of-type ::text').get()
@@ -88,6 +85,14 @@ class ComputerSourceSpider(scrapy.Spider):
         except Exception as e:
             print(e, response.url)
         if item['name'] is not None:
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
+
+
             product_item_new = item.save()
             # print(item, category)
 
