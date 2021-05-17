@@ -86,14 +86,15 @@ class StarTechBDSpider(scrapy.Spider):
 
         item = ProductItem()
         tag_list = []
-        category_obj = None
+        category_obj, category = None, None
         try:
             # todo nested category
             category_count = len(response.css('span[itemprop="name"] ::text').getall())
             if category_count > 1:
                 category = response.css('span[itemprop="name"] ::text').get().strip()
                 categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
-                tag_list.extend([slugify(category, allow_unicode=True) for category in categories if 'All' not in category])
+                tag_list.extend(
+                    [slugify(category, allow_unicode=True) for category in categories if 'All' not in category])
                 if 'component' in category.lower():
                     category = category.replace('Component', 'PC Components').strip()
                 if 'gaming' in category.lower():
@@ -108,13 +109,6 @@ class StarTechBDSpider(scrapy.Spider):
             # item['category'] = response.css('span[itemprop="name"] ::text').get()
             # item['category'] = Category.objects.first()
 
-            try:
-                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
-                logging.info("category already exists")
-            except Category.DoesNotExist:
-                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
-                category_obj.save()
-
             item['vendor'] = self.name
             item['name'] = extract_with_css('h1.product-name ::text')
             item['tags'] = tags
@@ -128,6 +122,14 @@ class StarTechBDSpider(scrapy.Spider):
             print(e, response.url)
         if item['name'] is not None:
             product_item_new = item.save()
+
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
+
             # print(item, category)
 
             # insert category object

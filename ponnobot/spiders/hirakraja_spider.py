@@ -1,9 +1,11 @@
 import json
-import re
+import logging
 
 import scrapy
+from django.utils.text import slugify
 
 from ponnobot.items import ProductItem
+from products.models import Category
 
 
 class HirakRajaSpider(scrapy.Spider):
@@ -48,17 +50,33 @@ class HirakRajaSpider(scrapy.Spider):
     def parse_product(self, response):
 
         item = ProductItem()
+        # todo
         tag_list = []
-        category_obj = None
+        category_obj, category = None, None
+        try:
+            product_json = json.loads(response.css('div#product-details ::attr("data-product")').get())
 
-        product_json = json.loads(response.css('div#product-details ::attr("data-product")').get())
+            item['name'] = product_json['name']
+            item['price'] = product_json['price_amount']
+            item['product_url'] = response.url
 
-        item['name'] = product_json['name']
-        item['price'] = product_json['price_amount']
-        item['product_url'] = response.url
-        item['category'] = product_json['category_name'].strip()
-        item['image_url'] = product_json['images'][0]['bySize']['medium_default']
-        item['description'] = product_json['description']
-        item['in_stock'] = 1 if product_json['availability'].strip().lower() == "available" else 0
+            category = product_json['category_name'].strip()
 
-        print(item)
+            item['image_url'] = product_json['images'][0]['bySize']['medium_default']
+            item['description'] = product_json['description']
+            item['in_stock'] = 1 if product_json['availability'].strip().lower() == "available" else 0
+        except Exception as e:
+            print(e, response.url)
+        if item['name'] is not None:
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
+
+            print(item, category)
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)
