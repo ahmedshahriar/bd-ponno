@@ -24,14 +24,14 @@ class HirakRajaSpider(scrapy.Spider):
         # urls = response.css('div#amegamenu > ul.anav-top > li.amenu-item > div.adropdown > div.aitem a ::attr("href")').getall()
         urls = response.css('div.category-tree ul li a ::attr("href")').getall()
         # print(urls)
-        for url in urls[:1]:
+        for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response, **kwargs):
 
         """ parse products """
         product_page_links = response.css('div.product-list div.product-thumbnail a')
-        yield from response.follow_all(product_page_links[:1], self.parse_product)
+        yield from response.follow_all(product_page_links, self.parse_product)
 
         """ pagination """
         try:
@@ -50,7 +50,6 @@ class HirakRajaSpider(scrapy.Spider):
     def parse_product(self, response):
 
         item = ProductItem()
-        # todo
         tag_list = []
         category_obj, category = None, None
         try:
@@ -66,20 +65,22 @@ class HirakRajaSpider(scrapy.Spider):
             if len(categories) > 1:
                 tag_list.extend([slugify(category, allow_unicode=True) for category in categories[1:-1] if 'All' not in category])
                 item['tags'] = [{"name": value} for value in tag_list]
+
             item['image_url'] = product_json['images'][0]['bySize']['medium_default']['url']
-            item['in_stock'] = 1 if product_json['availability'].strip().lower() == "available" else 0
+            item['in_stock'] = 1 if product_json['availability'].strip().lower() == "available" or  "last_remaining_items" else 0
         except Exception as e:
             print(e, response.url)
-        if item['name'] is not None:
-            # try:
-            #     category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
-            #     logging.info("category already exists")
-            # except Category.DoesNotExist:
-            #     category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
-            #     category_obj.save()
 
-            print(item, category)
-            # product_item_new = item.save()
-            #
-            # # insert category object
-            # product_item_new.category.add(category_obj)
+        if item['name'] is not None:
+            try:
+                category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
+                logging.info("category already exists")
+            except Category.DoesNotExist:
+                category_obj = Category(name=category, slug=slugify(category, allow_unicode=True))
+                category_obj.save()
+
+            # print(item, category)
+            product_item_new = item.save()
+
+            # insert category object
+            product_item_new.category.add(category_obj)
