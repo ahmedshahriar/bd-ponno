@@ -3,10 +3,10 @@
 
 ### Ongoing Parsing + Indexing
 
-* [Pickaboo](https://www.pickaboo.com)
+* [Daraz](https://www.daraz.com.bd)* (blocked, trying different approach)
 
 
-### To be Parsed
+### E-commerce Sites
 
 * [shoppersbd](https://www.shoppersbd.com)
 * [priyoshop](https://priyoshop.com)
@@ -25,7 +25,7 @@
 
 #### Sports  
 
-* [hirakraja](https://hirakraja.com)
+* [hirakraja](https://hirakraja.com) *parsed
 
 * [xenonsportsbd](https://www.xenonsportsbd.com)
 
@@ -37,7 +37,14 @@
 * [khaasfood](https://www.khaasfood.com)
 * [marketbangla](https://marketbangla.com)
 * [chefcart](https://chefcart.com.bd/shop/)
+* [ecohaat](https://www.ecohaat.com.bd/)
 
 #### Services
 
 * [Sheba](https://www.sheba.xyz) *parsed
+
+
+#### Electronics
+* [electronics](https://www.electronics.com.bd/)
+* [allmartbd](https://www.allmartbd.com/)
+* [floralimited](https://floralimited.com/) *
