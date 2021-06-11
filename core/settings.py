@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
-import urllib.parse
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,7 +33,11 @@ ALLOWED_HOSTS = ['bd-ponno.herokuapp.com', '127.0.0.1']
 # custom application
 CUSTOM_APPS = ['products', 'ponnobot', 'api', ]
 
-PACKAGES = ['rest_framework', 'rest_framework.authtoken', 'corsheaders', 'django_filters', ]
+PACKAGES = ['rest_framework', 'rest_framework.authtoken', 'corsheaders',
+            'django_filters',
+            # 'django.contrib.staticfiles', # required for serving swagger ui's css/js files
+            # 'drf_yasg',
+            ]
 
 # Application definition
 
@@ -158,6 +162,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',  # todo : remove in production
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
 }
