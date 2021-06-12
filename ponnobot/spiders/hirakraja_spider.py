@@ -61,6 +61,7 @@ class HirakRajaSpider(scrapy.Spider):
 
             # category = product_json['category_name'].strip()
             categories = response.css('ol.breadcrumb li span[itemprop="name"] ::text').getall()[1:]
+            # todo : check category  https://hirakraja.com/home/2256-t20-installation-free-foldable-motorized-treadmill.html
             category = categories[0]
             if len(categories) > 1:
                 tag_list.extend([slugify(category, allow_unicode=True) for category in categories[1:-1] if 'All' not in category])

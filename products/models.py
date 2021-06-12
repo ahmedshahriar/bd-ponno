@@ -79,11 +79,13 @@ class Product(models.Model):
     def get_categories(self):
         return "\n".join([p.name for p in self.category.all()])
 
+    def __str__(self):
+        return self.name
+
     # https://stackoverflow.com/questions/40275617/django-admin-truncate-text-in-list-display
     # @property
     # def short_name(self):
     #     # return self.name[:60]+'...'
     #     return truncatechars(self.name + '...', 35)
 
-    def __str__(self):
-        return self.name
+

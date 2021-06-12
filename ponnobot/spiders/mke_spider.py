@@ -89,7 +89,7 @@ class MKElectronicsSpider(scrapy.Spider):
             brand = response.css('meta[property="product:brand"] ::attr("content") ').get()
             color = response.css('meta[property="product:color"] ::attr("content") ').get()
             product_category = response.css('meta[property="product:category"] ::attr("content") ').get()
-            item['tags'] = [{"name": value} for value in [brand, product_category, color] if value is not None]
+            item['tags'] = [{"name": slugify(value, allow_unicode=True)} for value in [brand, product_category, color] if value is not None]
 
             try:
                 category_obj = Category.objects.get(slug=slugify(category, allow_unicode=True))
