@@ -105,7 +105,7 @@ class StarTechBDSpider(scrapy.Spider):
             brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
             if brand not in tag_list:
                 tag_list.append(slugify(brand, allow_unicode=True))
-            tags = [{"name": value} for value in tag_list]
+            tags = [{"name": slugify(value, allow_unicode=True)} for value in tag_list]
             # item['category'] = response.css('span[itemprop="name"] ::text').get()
             # item['category'] = Category.objects.first()
 

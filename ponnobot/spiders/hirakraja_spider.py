@@ -65,7 +65,7 @@ class HirakRajaSpider(scrapy.Spider):
             category = categories[0]
             if len(categories) > 1:
                 tag_list.extend([slugify(category, allow_unicode=True) for category in categories[1:-1] if 'All' not in category])
-                item['tags'] = [{"name": value} for value in tag_list]
+                item['tags'] = [{"name": slugify(value, allow_unicode=True)} for value in tag_list]
 
             item['image_url'] = product_json['images'][0]['bySize']['medium_default']['url']
             item['in_stock'] = 1 if product_json['availability'].strip().lower() == "available" or  "last_remaining_items" else 0

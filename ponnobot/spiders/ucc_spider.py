@@ -40,7 +40,7 @@ class UCCSpider(scrapy.Spider):
         """ parse products """
         product_page_links = response.css('div.product-hover  a')
         yield from response.follow_all(product_page_links, self.parse_product, meta={"category": categories[0].strip(),
-                                                                                     "tag_list": [{"name": value} for
+                                                                                     "tag_list": [{"name": slugify(value, allow_unicode=True)} for
                                                                                                   value in tag_list]})
 
         """ parse test for a single product """

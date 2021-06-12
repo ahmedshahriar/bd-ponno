@@ -92,7 +92,7 @@ class RyanComputersSpider(scrapy.Spider):
             features_values = response.css('div#information div.specs-wrapper div.specs-item-wrapper div.col-md-10 ::text').getall()
             features_dict = dict(zip(features_keys, features_values))
 
-            item['tags'] = [{"name": value} for value in {value for key, value in features_dict.items() if 'brand' in key.lower() } ]
+            item['tags'] = [{"name": slugify(value, allow_unicode=True)} for value in {value for key, value in features_dict.items() if 'brand' in key.lower() } ]
 
         except Exception as e:
             print(e, response.url)
