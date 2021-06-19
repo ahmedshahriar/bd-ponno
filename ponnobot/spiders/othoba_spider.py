@@ -71,7 +71,7 @@ class OthobaSpider(scrapy.Spider):
             item['in_stock'] = 0 if response.css('span.sold-out').get() else 1
             product_vendor = response.css('div.product-vendor a ::text').get()
             if product_vendor:
-                tag_list.append(slugify(product_vendor, allow_unicode=True) if product_vendor else "")
+                tag_list.append(product_vendor if product_vendor else "")
             categories = response.css('div.breadcrumb a span ::text').getall()[1:]
 
             try:
@@ -82,8 +82,8 @@ class OthobaSpider(scrapy.Spider):
                 category_obj.save()
             categories.remove(categories[1])
             if len(categories) > 1:
-                tag_list.extend([slugify(category, allow_unicode=True) for category in categories])
-            item['tags'] = [{"name": value} for value in tag_list]
+                tag_list.extend([category for category in categories])
+            item['tags'] = [{"name": slugify(value, allow_unicode=True)} for value in tag_list]
         except Exception as e:
             print(e, response.url)
         if item['name'] is not None:

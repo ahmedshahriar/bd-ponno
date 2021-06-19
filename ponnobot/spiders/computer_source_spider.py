@@ -45,6 +45,7 @@ class ComputerSourceSpider(scrapy.Spider):
 
     def parse_product(self, response):
         item = ProductItem()
+        # todo tags
         tag_list = [{"name": 'tech'}]
         category_obj = None
 

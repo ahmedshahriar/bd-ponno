@@ -44,7 +44,7 @@ class StarTechBDSpider(scrapy.Spider):
         #     print(img)
 
         """ parse products """
-        product_page_links = response.css('h4.product-name  a')
+        product_page_links = response.css('h4.p-item-name  a')
         yield from response.follow_all(product_page_links, self.parse_product)
 
         """ parse test for a single product """
@@ -94,7 +94,7 @@ class StarTechBDSpider(scrapy.Spider):
                 category = response.css('span[itemprop="name"] ::text').get().strip()
                 categories = response.css('span[itemprop="name"] ::text').getall()[1:-1]
                 tag_list.extend(
-                    [slugify(category, allow_unicode=True) for category in categories if 'All' not in category])
+                    [category for category in categories if 'All' not in category])
                 if 'component' in category.lower():
                     category = category.replace('Component', 'PC Components').strip()
                 if 'gaming' in category.lower():
@@ -104,7 +104,7 @@ class StarTechBDSpider(scrapy.Spider):
                 category = "other"
             brand = response.css('meta[property="product:brand"] ::attr("content")').get().lower()
             if brand not in tag_list:
-                tag_list.append(slugify(brand, allow_unicode=True))
+                tag_list.append(brand)
             tags = [{"name": slugify(value, allow_unicode=True)} for value in tag_list]
             # item['category'] = response.css('span[itemprop="name"] ::text').get()
             # item['category'] = Category.objects.first()

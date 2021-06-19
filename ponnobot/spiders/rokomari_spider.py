@@ -86,7 +86,7 @@ class RokomariBookSpider(scrapy.Spider):
 
             author_name = response.css('p.details-book-info__content-author a ::text').get().strip()
             tag_list.extend([publisher, author_name, book_category])
-            item['tags'] = [{"name": value} for value in tag_list]
+            item['tags'] = [{"name": slugify(value, allow_unicode=True)} for value in tag_list]
 
         except Exception as e:
             print(e, response.url)

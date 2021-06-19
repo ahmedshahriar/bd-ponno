@@ -40,12 +40,15 @@ class PickabooSpider(scrapy.Spider):
         categories = response.css('div.breadcrumbs ul.items > li > * ::text').getall()[1:]
         tag_list = []
         if len(categories) > 1:
-            tag_list = [slugify(value, allow_unicode=True) for value in categories[1:]]
+            tag_list = [value for value in categories[1:]]
         if 'others' in tag_list:  # filter 'other' tag
             tag_list.remove('others')
 
         product_page_links = response.css('li.product-item div  a ')
-        yield from response.follow_all(product_page_links, self.parse_product, meta={"category": categories[0].strip(),"tag_list":[{"name": value} for value in tag_list]})
+        yield from response.follow_all(product_page_links, self.parse_product,
+                                       meta={"category": categories[0].strip(),
+                                             "tag_list": [{"name": slugify(value, allow_unicode=True)} for value in
+                                                          tag_list]})
 
         # single_product_url = "https://www.pickaboo.com/sony-bravia-w66f-50-led-full-hd-high-dynamic-range-hdr-smart-tv.html"
         # "https://www.pickaboo.com/electronics-appliances/kitchen-appliance/others.html"
@@ -81,7 +84,8 @@ class PickabooSpider(scrapy.Spider):
             item['tags'] = tag_list
             item['product_url'] = response.url
             item['in_stock'] = 1 if response.css('.product-info-stock-sku div.stock.available') else 0
-            item['price'] = int(float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
+            item['price'] = int(
+                float(response.css('meta[property="product:price:amount"] ::attr("content")').get().strip()))
             item['image_url'] = response.css('meta[property="og:image"] ::attr("content")').get().strip()
             # stock check https://www.pickaboo.com/sony-bravia-w66f-50-led-full-hd-high-dynamic-range-hdr-smart-tv.html
 

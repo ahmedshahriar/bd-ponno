@@ -64,7 +64,7 @@ class HirakRajaSpider(scrapy.Spider):
             # todo : check category  https://hirakraja.com/home/2256-t20-installation-free-foldable-motorized-treadmill.html
             category = categories[0]
             if len(categories) > 1:
-                tag_list.extend([slugify(category, allow_unicode=True) for category in categories[1:-1] if 'All' not in category])
+                tag_list.extend([category for category in categories[1:-1] if 'All' not in category])
                 item['tags'] = [{"name": slugify(value, allow_unicode=True)} for value in tag_list]
 
             item['image_url'] = product_json['images'][0]['bySize']['medium_default']['url']

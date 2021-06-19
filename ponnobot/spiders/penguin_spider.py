@@ -69,7 +69,7 @@ class PenguinBDSpider(scrapy.Spider):
             brand = response.css('div.woodmart-product-brand a img ::attr("title")').get()
             categories = response.css('nav.woocommerce-breadcrumb a.breadcrumb-link ::text').getall()
             if len(categories) > 1:
-                tag_list.extend([slugify(category, allow_unicode=True) for category in categories[2:]])
+                tag_list.extend([category for category in categories[2:]])
 
             try:
                 category_obj = Category.objects.get(slug=slugify(categories[1], allow_unicode=True))
@@ -78,8 +78,8 @@ class PenguinBDSpider(scrapy.Spider):
                 category_obj = Category(name=categories[1], slug=slugify(categories[1], allow_unicode=True))
                 category_obj.save()
             if brand:
-                tag_list.append(slugify(brand, allow_unicode=True) if brand else "")
-            item['tags'] = [{"name": value} for value in tag_list]
+                tag_list.append(brand if brand else "")
+            item['tags'] = [{"name": slugify(value, allow_unicode=True)} for value in tag_list]
             try:
                 price = response.css('meta[property="product:price:amount"] ::attr("content")').get()
 

@@ -34,7 +34,7 @@ class UCCSpider(scrapy.Spider):
         categories = response.css('div.breadcrumbs div.container ul.items li ::text').getall()[1:]
         tag_list = []
         if len(categories) > 1:
-            tag_list = [slugify(value, allow_unicode=True) for value in categories[1:]]
+            tag_list = [value for value in categories[1:]]
         if 'others' in tag_list:  # filter 'other' tag
             tag_list.remove('others')
         """ parse products """
