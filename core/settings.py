@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import urllib.parse
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -113,10 +114,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': str(os.environ.get('DB_NAME')),
-        # 'CLIENT': {
-        #     'host': 'mongodb+srv://'+str(os.environ.get('DB_USERNAME'))+':'+urllib.parse.quote_plus(str(os.environ.get('DB_PASSWORD'))) +'@cluster0.xcc5n.mongodb.net/test?retryWrites=true&w=majority',
-        #     'authMechanism': 'SCRAM-SHA-1'
-        # }
+        'CLIENT': {
+            'host': str(os.environ.get('MONGODB_URL_TEST')),
+            'authMechanism': 'SCRAM-SHA-1'
+        }
     }
 }
 
