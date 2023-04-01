@@ -3,21 +3,6 @@
 Scrapy MongoDB Django integrated API that scrapes popular e-commerce sites (10+) from Bangladesh.\
 Added some extra functionalities for the API, ex- custom price and product tag filter
 
-
-### Test API on Heroku
-<details>
-  <summary>Click to view user credentials!</summary>
-
-username: testuser
-
-password: SXyynvwfYjRA5zS
-
-```
-https://bd-ponno.herokuapp.com/api/products/
-```
-
-</details>
-
 ## Built With
 ```
 Django==3.1.7
