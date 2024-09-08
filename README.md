@@ -1,7 +1,9 @@
 # bd-ponno
 
 Scrapy MongoDB Django integrated API that scrapes popular e-commerce sites (10+) from Bangladesh.\
-Added some extra functionalities for the API, ex- custom price and product tag filter
+Added some extra functionalities for the API, ex-custom price, and product tag filter
+
+**The project is no longer maintained.**
 
 ## Built With
 ```
@@ -17,21 +19,8 @@ pymongo==3.11.3
 ```
 
 ### Remarks
-MongoDB Atlas is not a good option for djongo or remote web scraping, because djongo is just a connector for the underlying relational mapper with Django which causes additional delay, hence bad performance for remote scraping with Atlas.
-Also, there could be some unintentional issues, for example - 
+MongoDB Atlas is not a good option for djongo or remote web scraping, because djongo is just a connector for the underlying relational mapper with Django which causes additional delay, hence bad performance for remote scraping with Atlas. Also, you might run into lots of unintentional issues like - ['list' object has no attribute '_meta'](https://github.com/doableware/djongo/issues/136#issue-325361852) while checking the product details view in the admin panel (`ArrayReferenceField` class (`Category` model)).
 
-I ran into error to check product details view in admin panel because of its `ArrayReferenceField` class (`Category` model)
-
-<details>
-<summary>Click to view the error</summary>
-
-```
-AttributeError Exception Value:	 'list' object has no attribute '_meta'
-
-trace the issue:
-https://github.com/doableware/djongo/issues/136
-```
-</details>
 
 ### API preview
 
